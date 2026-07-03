@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    container_name: ergonix-audit-backend
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB_PATH: /data/audit.db
+      PORT: "8080"
+    volumes:
+      - audit-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: ergonix-audit-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  audit-data:

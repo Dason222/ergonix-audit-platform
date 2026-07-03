@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit #1 — Ergonix Website Audit Report</title>
+<style>
+  :root { --critical:#dc2626; --high:#ea580c; --medium:#d97706; --low:#65a30d; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; margin: 0;
+         background:#f6f7f9; color:#1f2937; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 64px; }
+  header { border-bottom: 3px solid #111827; padding-bottom: 16px; margin-bottom: 24px; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  .muted { color:#6b7280; font-size: 13px; }
+  .cards { display:flex; flex-wrap:wrap; gap:12px; margin: 20px 0 28px; }
+  .card { background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:14px 20px; min-width:130px; }
+  .card b { display:block; font-size:24px; }
+  .card span { font-size:12px; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
+  .sev { display:inline-block; padding:2px 10px; border-radius:999px; color:#fff; font-size:11px;
+         font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+  .sev.critical{background:var(--critical)} .sev.high{background:var(--high)}
+  .sev.medium{background:var(--medium)} .sev.low{background:var(--low)}
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #e5e7eb;
+          border-radius:10px; overflow:hidden; font-size: 13px; }
+  th { text-align:left; background:#111827; color:#f9fafb; padding:9px 12px; font-size:11px;
+       text-transform:uppercase; letter-spacing:.05em; }
+  td { padding:10px 12px; border-top:1px solid #f0f1f3; vertical-align: top; }
+  tr:hover td { background:#f9fafb; }
+  .url { font-family: ui-monospace, Consolas, monospace; font-size:11px; color:#2563eb;
+         word-break: break-all; }
+  h2 { margin: 36px 0 12px; font-size: 18px; }
+  .sites td:first-child { font-weight: 600; }
+  footer { margin-top: 40px; font-size: 12px; color:#9ca3af; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Ergonix Website Audit — Report #1</h1>
+  <div class="muted">Status: completed · Created 2026-07-03 20:46 · Generated 2026-07-03 23:47 EEST</div>
+</header>
+
+<div class="cards">
+  <div class="card"><b>2</b><span>Websites</span></div>
+  <div class="card"><b>16</b><span>Pages scanned</span></div>
+  <div class="card"><b>137</b><span>Issues</span></div>
+  <div class="card"><b>5s</b><span>Duration</span></div>
+  <div class="card"><b>0</b><span>critical</span></div><div class="card"><b>85</b><span>high</span></div><div class="card"><b>44</b><span>medium</span></div><div class="card"><b>8</b><span>low</span></div>
+</div>
+
+<h2>Websites</h2>
+<table class="sites">
+  <tr><th>Website</th><th>Status</th><th>Pages</th><th>Issues</th><th>Duration</th><th>Note</th></tr>
+  
+  <tr><td>https://ergonix.lt</td><td>completed</td><td>8</td><td>70</td>
+      <td>4s</td><td class="muted"></td></tr>
+  
+  <tr><td>https://ergonix.pl</td><td>completed</td><td>8</td><td>67</td>
+      <td>5s</td><td class="muted"></td></tr>
+  
+</table>
+
+<h2>Issues (137)</h2>
+<table>
+  <tr><th>Severity</th><th>Website</th><th>Category</th><th>Source</th><th>Page</th>
+      <th>Description</th><th>Suggested fix</th><th>Conf.</th></tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Ergonomics explainedSoon&#34; → https://ergonix.lt/blogs/ergonomics is broken (HTTP 404); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Office setupSoon&#34; → https://ergonix.lt/blogs/office-setup is broken (HTTP 404); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Work smarter Coming soon •Tips to boost productivity &amp; well-being.&#34; → https://ergonix.lt/blogs/productivity is broken (HTTP 404); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Health tipsSoon&#34; → https://ergonix.lt/blogs/wellness is broken (HTTP 404); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Workspace tipsSoon&#34; → https://ergonix.lt/blogs/workspace-tips is broken (HTTP 404); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Stalai 160×80 cm&#34; → https://ergonix.lt/collections/reguliuojamo-aukscio-stalai-160x80cm is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Slapukai&#34; → https://ergonix.lt/pages/cookies is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Partnerystės programa&#34; → https://ergonix.lt/pages/partnerystes-programa is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Privatumo politika&#34; → https://ergonix.lt/pages/privacy is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Pirkimo taisyklės&#34; → https://ergonix.lt/pages/purchase-terms is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Sąlygos&#34; → https://ergonix.lt/pages/terms is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Garantija&#34; → https://ergonix.lt/pages/warranty-policy is broken (HTTP 429); referenced from https://ergonix.lt/, https://ergonix.lt/, https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-45% Peržiūrėti → Premium guminiai ratukai 5 vnt. rinkinys €53,00 €29,00&#34; → https://ergonix.lt/products/ergonix-guminiai-ratukai is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-34% Peržiūrėti → OmniSit Pro Kėdė Juoda €456,00 €299,00&#34; → https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192702797 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Peržiūrėti → OmniPRO Stalas 120×60 cm Ąžuolas stalviršis - Juodos kojos €599,00 €309,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124194125 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-38% Peržiūrėti → OmniPRO Stalas 140×70 cm Ąžuolas stalviršis - Juodos kojos €599,00 €369,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124226893 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-35% Peržiūrėti → OmniPRO Stalas 160×80 cm Ąžuolas stalviršis - Juodos kojos €599,00 €389,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124259661 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Peržiūrėti → OmniPRO Stalas 120×60 cm Riešutas stalviršis - Juodos kojos €599,00 €309,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124292429 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-38% Peržiūrėti → OmniPRO Stalas 140×70 cm Riešutas stalviršis - Juodos kojos €599,00 €369,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124325197 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-35% Peržiūrėti → OmniPRO Stalas 160×80 cm Riešutas stalviršis - Juodos kojos €599,00 €389,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124357965 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-53% Peržiūrėti → OmniPRO Stalas 120×60 cm Balta stalviršis - Juodos kojos €599,00 €279,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124390733 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-43% Peržiūrėti → OmniPRO Stalas 140×70 cm Balta stalviršis - Juodos kojos €599,00 €339,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124423501 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-40% Peržiūrėti → OmniPRO Stalas 160×80 cm Balta stalviršis - Juodos kojos €599,00 €359,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124456269 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Peržiūrėti → OmniPRO Stalas 120×60 cm Ąžuolas stalviršis - Baltos kojos €599,00 €309,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124489037 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-38% Peržiūrėti → OmniPRO Stalas 140×70 cm Ąžuolas stalviršis - Baltos kojos €599,00 €369,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124521805 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-35% Peržiūrėti → OmniPRO Stalas 160×80 cm Ąžuolas stalviršis - Baltos kojos €599,00 €389,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124554573 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Peržiūrėti → OmniPRO Stalas 120×60 cm Riešutas stalviršis - Baltos kojos €599,00 €309,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124587341 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-38% Peržiūrėti → OmniPRO Stalas 140×70 cm Riešutas stalviršis - Baltos kojos €599,00 €369,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124620109 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-35% Peržiūrėti → OmniPRO Stalas 160×80 cm Riešutas stalviršis - Baltos kojos €599,00 €389,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124652877 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-43% Peržiūrėti → OmniPRO Stalas 140×70 cm Balta stalviršis - Baltos kojos €599,00 €339,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124718413 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-40% Peržiūrėti → OmniPRO Stalas 160×80 cm Balta stalviršis - Baltos kojos €599,00 €359,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124751181 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → OmniPRO Stalo kojos Black €229,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalo-remas?variant=53713599168845 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → OmniPRO Stalo kojos White €229,00&#34; → https://ergonix.lt/products/reguliuojamo-aukscio-stalo-remas?variant=53713599201613 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-60% Peržiūrėti → Stalčius po stalviršiu Juoda €99,00 €39,00&#34; → https://ergonix.lt/products/stalo-stalciukas?variant=53561575342413 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-60% Peržiūrėti → Stalčius po stalviršiu Balta €99,00 €39,00&#34; → https://ergonix.lt/products/stalo-stalciukas?variant=53561575375181 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 120×60 Ąžuolas €189,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138155853 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 140×70 Ąžuolas €399,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138188621 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 160×80 Ąžuolas €309,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138221389 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 120×60 Riešutas €189,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138254157 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 140×70 Riešutas €399,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138286925 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 160×80 Riešutas €329,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138319693 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 120×60 Balta €189,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138352461 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 140×70 Balta €249,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138385229 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Peržiūrėti → Stalviršis 160×80 Balta €309,00&#34; → https://ergonix.lt/products/stalvirsis?variant=53713138417997 is broken (HTTP 429); referenced from https://ergonix.lt/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Ergonomics explainedSoon&#34; → https://ergonix.pl/blogs/ergonomics is broken (HTTP 404); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Office setupSoon&#34; → https://ergonix.pl/blogs/office-setup is broken (HTTP 404); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Work smarter Coming soon •Tips to boost productivity &amp; well-being.&#34; → https://ergonix.pl/blogs/productivity is broken (HTTP 404); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Health tipsSoon&#34; → https://ergonix.pl/blogs/wellness is broken (HTTP 404); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Workspace tipsSoon&#34; → https://ergonix.pl/blogs/workspace-tips is broken (HTTP 404); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Pliki cookie&#34; → https://ergonix.pl/pages/cookies is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Program partnerski&#34; → https://ergonix.pl/pages/partnerystes-programa is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Dostawa&#34; → https://ergonix.pl/pages/pristatymas is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Polityka prywatności&#34; → https://ergonix.pl/pages/privacy is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Warunki zakupu&#34; → https://ergonix.pl/pages/purchase-terms is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Regulamin&#34; → https://ergonix.pl/pages/terms is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken internal link</b><br>Link &#34;Gwarancja&#34; → https://ergonix.pl/pages/warranty-policy is broken (HTTP 429); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-61% Zobacz → Biurko OmniPro 120×60 cm Blat Biały - Białe nogi 2.575,00 zł 999,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035321175 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-51% Zobacz → Biurko OmniPro 140×70 cm Blat Biały - Białe nogi 2.575,00 zł 1.239,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035353943 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-49% Zobacz → Biurko OmniPro 160×80 cm Blat Biały - Białe nogi 2.575,00 zł 1.299,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035386711 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-56% Zobacz → Biurko OmniPro 120×60 cm Blat Orzech - Białe nogi 2.575,00 zł 1.129,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035419479 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Zobacz → Biurko OmniPro 140×70 cm Blat Orzech - Białe nogi 2.575,00 zł 1.329,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035452247 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-45% Zobacz → Biurko OmniPro 160×80 cm Blat Orzech - Białe nogi 2.575,00 zł 1.399,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035485015 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-56% Zobacz → Biurko OmniPro 120×60 cm Blat Dąb - Białe nogi 2.575,00 zł 1.129,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035517783 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Zobacz → Biurko OmniPro 140×70 cm Blat Dąb - Białe nogi 2.575,00 zł 1.329,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035550551 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-45% Zobacz → Biurko OmniPro 160×80 cm Blat Dąb - Białe nogi 2.575,00 zł 1.399,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035583319 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-61% Zobacz → Biurko OmniPro 120×60 cm Blat Biały - Czarne nogi 2.575,00 zł 999,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035616087 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-51% Zobacz → Biurko OmniPro 140×70 cm Blat Biały - Czarne nogi 2.575,00 zł 1.239,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035648855 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-49% Zobacz → Biurko OmniPro 160×80 cm Blat Biały - Czarne nogi 2.575,00 zł 1.299,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035681623 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-56% Zobacz → Biurko OmniPro 120×60 cm Blat Orzech - Czarne nogi 2.575,00 zł 1.129,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035714391 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Zobacz → Biurko OmniPro 140×70 cm Blat Orzech - Czarne nogi 2.575,00 zł 1.329,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035747159 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-56% Zobacz → Biurko OmniPro 120×60 cm Blat Dąb - Czarne nogi 2.575,00 zł 1.129,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035812695 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-48% Zobacz → Biurko OmniPro 140×70 cm Blat Dąb - Czarne nogi 2.575,00 zł 1.329,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035845463 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-45% Zobacz → Biurko OmniPro 160×80 cm Blat Dąb - Czarne nogi 2.575,00 zł 1.399,00 zł&#34; → https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro?variant=53646035878231 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 140×70 Dąb 1.715,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036435287 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 160×80 Dąb 1.328,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036468055 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 120×60 Orzech 812,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036500823 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 140×70 Orzech 1.715,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036533591 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 160×80 Orzech 1.414,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036566359 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 120×60 Biały 812,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036599127 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 140×70 Biały 1.070,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036631895 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Blat 160×80 Biały 1.328,70 zł&#34; → https://ergonix.pl/products/blat-biurka?variant=53646036664663 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-56% Zobacz → Kółka gumowe premium Zestaw 5 szt. 227,00 zł 99,00 zł&#34; → https://ergonix.pl/products/premium-kolka-ergonix is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;Zobacz → Nogi biurka OmniPro Czarny 839,00 zł&#34; → https://ergonix.pl/products/rama-stolu-z-regulacja-wysokosci?variant=53646036238679 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-67% Zobacz → Szuflada pod blat Czarna 425,00 zł 139,00 zł&#34; → https://ergonix.pl/products/szuflada-biurka?variant=53646036042071 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev high">high</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Broken internal link</b><br>Link &#34;-67% Zobacz → Szuflada pod blat Biała 425,00 zł 139,00 zł&#34; → https://ergonix.pl/products/szuflada-biurka?variant=53646036074839 is broken (HTTP 429); referenced from https://ergonix.pl/collections/all.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>UI</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Empty buttons</b><br>3 button(s) have no text, value or aria-label; users and screen readers see a blank control.</td>
+    <td>Give every button visible text or an aria-label.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>UI</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565</td>
+    <td><b>Empty buttons</b><br>2 button(s) have no text, value or aria-label; users and screen readers see a blank control.</td>
+    <td>Give every button visible text or an aria-label.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;https://ergonix.lt/cart/add&#34;, 2 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/omniarm-pro</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/omniarm-pro</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;https://ergonix.lt/cart/add&#34;, 2 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>UI</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124685645</td>
+    <td><b>Empty buttons</b><br>7 button(s) have no text, value or aria-label; users and screen readers see a blank control.</td>
+    <td>Give every button visible text or an aria-label.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124685645</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124685645</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;https://ergonix.lt/cart/add&#34;, 2 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/pages/b2b</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/collections/all</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/pages/contact-us</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/pages/pristatymas</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;Puikiai 4.7&#34; → https://www.trustpilot.com/review/ergonix.de is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/6989dbd8b51c704d4d9c0c28 is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/698d91cfb51c709ceba0ef37 is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a09dec3cdc494b95d18092 is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a18752d6c35237cd6657e3 is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a1d7d6dcbdac79f0cbffb1 is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a57b3e3cdc49f55ed60971 is broken (HTTP 403); referenced from https://ergonix.lt/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.lt</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/</td>
+    <td><b>Duplicate meta description</b><br>5 pages share the meta description &#34;Ergonominė biuro kėdė OmniSit Pro tik nuo €279. Reguliuojamas juosmens pala…&#34;: https://ergonix.lt/, https://ergonix.lt/pages/b2b, https://ergonix.lt/collections/all, https://ergonix.lt/pages/contact-us, https://ergonix.lt/pages/pristatymas. Identical descriptions across pages waste snippet space and hint at template gaps.</td>
+    <td>Write a unique meta description per page.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>UI</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Empty buttons</b><br>3 button(s) have no text, value or aria-label; users and screen readers see a blank control.</td>
+    <td>Give every button visible text or an aria-label.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>UI</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799</td>
+    <td><b>Empty buttons</b><br>2 button(s) have no text, value or aria-label; users and screen readers see a blank control.</td>
+    <td>Give every button visible text or an aria-label.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;https://ergonix.pl/cart/add&#34;, 2 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/omniarm-pro</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/omniarm-pro</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;https://ergonix.pl/cart/add&#34;, 2 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>UI</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro</td>
+    <td><b>Empty buttons</b><br>7 button(s) have no text, value or aria-label; users and screen readers see a blank control.</td>
+    <td>Give every button visible text or an aria-label.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;https://ergonix.pl/cart/add&#34;, 2 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/pages/b2b</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/pages/contact-us</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/collections/all</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Logic</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/pages/returns-refunds-page</td>
+    <td><b>Form without submit control</b><br>Form (action=&#34;&#34;, 4 input(s)) has no submit button; users may be unable to send it.</td>
+    <td>Add a &lt;button type=&#34;submit&#34;&gt; or input[type=submit] to the form.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;4.7&#34; → https://www.trustpilot.com/review/ergonix.de is broken (HTTP 403); referenced from https://ergonix.pl/, https://ergonix.pl/, https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/6989dbd8b51c704d4d9c0c28 is broken (HTTP 403); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/698d91cfb51c709ceba0ef37 is broken (HTTP 403); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a09dec3cdc494b95d18092 is broken (HTTP 403); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a18752d6c35237cd6657e3 is broken (HTTP 403); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a1d7d6dcbdac79f0cbffb1 is broken (HTTP 403); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>Network</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Broken external link</b><br>Link &#34;&#34; → https://www.trustpilot.com/users/69a57b3e3cdc49f55ed60971 is broken (HTTP 403); referenced from https://ergonix.pl/.</td>
+    <td>Fix the target URL, restore the destination page, or remove the link.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev medium">medium</span></td>
+    <td>https://ergonix.pl</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/</td>
+    <td><b>Duplicate meta description</b><br>6 pages share the meta description &#34;Ergonomiczny fotel biurowy OmniSit Pro już od 1242 zł. Regulowane podparcie l\xc4…&#34;: https://ergonix.pl/, https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro, https://ergonix.pl/pages/b2b, https://ergonix.pl/pages/contact-us, https://ergonix.pl/collections/all, https://ergonix.pl/pages/returns-refunds-page. Identical descriptions across pages waste snippet space and hint at template gaps.</td>
+    <td>Write a unique meta description per page.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.lt</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/ergonomine-kede-omnisit-pro?variant=52380192735565</td>
+    <td><b>Multiple H1 headings</b><br>The page has 2 &lt;h1&gt; elements; one clear main heading is recommended.</td>
+    <td>Keep a single &lt;h1&gt; and demote the others to &lt;h2&gt;/&lt;h3&gt;.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.lt</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/omniarm-pro</td>
+    <td><b>Meta description too long</b><br>Meta description is 335 characters; snippets truncate near 160.</td>
+    <td>Trim the description to roughly 160 characters.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.lt</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/omniarm-pro</td>
+    <td><b>Multiple H1 headings</b><br>The page has 2 &lt;h1&gt; elements; one clear main heading is recommended.</td>
+    <td>Keep a single &lt;h1&gt; and demote the others to &lt;h2&gt;/&lt;h3&gt;.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.lt</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.lt/products/reguliuojamo-aukscio-stalas-omnipro?variant=53426124685645</td>
+    <td><b>Multiple H1 headings</b><br>The page has 2 &lt;h1&gt; elements; one clear main heading is recommended.</td>
+    <td>Keep a single &lt;h1&gt; and demote the others to &lt;h2&gt;/&lt;h3&gt;.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.pl</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/fotel-ergonomiczny-omnisit-pro?variant=53646035091799</td>
+    <td><b>Multiple H1 headings</b><br>The page has 2 &lt;h1&gt; elements; one clear main heading is recommended.</td>
+    <td>Keep a single &lt;h1&gt; and demote the others to &lt;h2&gt;/&lt;h3&gt;.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.pl</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/omniarm-pro</td>
+    <td><b>Meta description too long</b><br>Meta description is 338 characters; snippets truncate near 160.</td>
+    <td>Trim the description to roughly 160 characters.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.pl</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/omniarm-pro</td>
+    <td><b>Multiple H1 headings</b><br>The page has 2 &lt;h1&gt; elements; one clear main heading is recommended.</td>
+    <td>Keep a single &lt;h1&gt; and demote the others to &lt;h2&gt;/&lt;h3&gt;.</td>
+    <td>100%</td>
+  </tr>
+  
+  <tr>
+    <td><span class="sev low">low</span></td>
+    <td>https://ergonix.pl</td>
+    <td>SEO</td>
+    <td>rule</td>
+    <td class="url">https://ergonix.pl/products/biurko-z-regulacja-wysokosci-omnipro</td>
+    <td><b>Multiple H1 headings</b><br>The page has 2 &lt;h1&gt; elements; one clear main heading is recommended.</td>
+    <td>Keep a single &lt;h1&gt; and demote the others to &lt;h2&gt;/&lt;h3&gt;.</td>
+    <td>100%</td>
+  </tr>
+  
+</table>
+
+<footer>Generated by the Ergonix Website Audit Platform.</footer>
+</div>
+</body>
+</html>
