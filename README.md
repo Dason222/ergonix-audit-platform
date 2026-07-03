@@ -42,6 +42,55 @@ OpenAI-compatible LLM client · SQLite (pure-Go, no CGO) — clean architecture:
 **Frontend** React 18 · TypeScript · Vite · Tailwind v4 · TanStack Query ·
 TanStack Table · Recharts.
 
+## Fully automatic checks (no UI needed)
+
+The `audit` CLI runs the entire pipeline — crawl real pages → rule checks →
+AI analysis → report — from a single command:
+
+```bash
+cd backend
+
+# check one site, print the problem list, write json+html reports
+go run ./cmd/audit -sites https://ergonix.lt -pages 20
+
+# check every configured storefront, all four report formats
+go run ./cmd/audit -sites all -formats json,csv,html,pdf -out ./reports
+
+# keep checking automatically every 24 hours
+go run ./cmd/audit -sites all -interval 24h
+
+# CI quality gate: exit code 2 when high/critical issues exist
+go run ./cmd/audit -sites all -fail-on high
+```
+
+Sample output:
+
+```
+[https://ergonix.lt] crawl  6 pages fetched
+[https://ergonix.lt] checks 33 findings
+
+================ ERGONIX WEBSITE AUDIT ================
+Status: completed   Websites: 1  Pages: 6  Duration: 5s
+Issues: 33  (critical 0 · high 11 · medium 18 · low 4)
+=======================================================
+
+[HIGH] Network · rule · https://ergonix.lt/
+  Broken internal link
+  Link "Ergonomics explained" → https://ergonix.lt/blogs/ergonomics is broken (HTTP 404)
+  fix: Fix the target URL, restore the destination page, or remove the link.
+…
+report written: reports/ergonix-audit-20260704-000359.json
+report written: reports/ergonix-audit-20260704-000359.html
+```
+
+For unattended scheduled runs use `-interval`, or wire the one-shot form into
+cron / Windows Task Scheduler / CI:
+
+```
+# cron: full audit of all storefronts every night at 03:00
+0 3 * * *  cd /opt/ergonix-audit/backend && ./audit -sites all -quiet -out /var/reports
+```
+
 ## Quick start (Docker)
 
 ```bash

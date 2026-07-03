@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"sync"
+	"time"
 )
 
 // LinkResult is the outcome of probing one URL.
@@ -13,8 +14,13 @@ type LinkResult struct {
 	Err        string
 }
 
-// Broken reports whether the probe indicates a dead link.
+// Broken reports whether the probe indicates a dead link. 429 (rate
+// limited) is inconclusive — the shop throttled the prober, the link is
+// almost certainly fine — so it never counts as broken.
 func (r LinkResult) Broken() bool {
+	if r.StatusCode == http.StatusTooManyRequests {
+		return false
+	}
 	return r.Err != "" || r.StatusCode >= 400
 }
 
@@ -112,6 +118,13 @@ func (lp *LinkProber) probe(ctx context.Context, urls []string, results LinkStat
 }
 
 func (lp *LinkProber) probeOne(ctx context.Context, client *http.Client, u string) LinkResult {
+	// Politeness: pace each worker so probing never hammers the shop into
+	// rate-limiting (which would poison results with 429s).
+	select {
+	case <-time.After(150 * time.Millisecond):
+	case <-ctx.Done():
+		return LinkResult{Err: "cancelled"}
+	}
 	for _, method := range []string{http.MethodHead, http.MethodGet} {
 		req, err := http.NewRequestWithContext(ctx, method, u, nil)
 		if err != nil {

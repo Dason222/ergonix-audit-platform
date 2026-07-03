@@ -321,6 +321,24 @@ func TestEngineRunSetsMetadata(t *testing.T) {
 	}
 }
 
+func TestLinkResultBroken(t *testing.T) {
+	cases := []struct {
+		res  LinkResult
+		want bool
+	}{
+		{LinkResult{StatusCode: 200}, false},
+		{LinkResult{StatusCode: 404}, true},
+		{LinkResult{StatusCode: 500}, true},
+		{LinkResult{StatusCode: 429}, false}, // rate limited = inconclusive, never "broken"
+		{LinkResult{Err: "dial tcp: no such host"}, true},
+	}
+	for _, c := range cases {
+		if got := c.res.Broken(); got != c.want {
+			t.Errorf("Broken(%+v) = %v, want %v", c.res, got, c.want)
+		}
+	}
+}
+
 func TestExpectedLanguage(t *testing.T) {
 	cases := map[string]string{
 		"https://ergonix.lt": "lt",

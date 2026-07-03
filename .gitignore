@@ -28,3 +28,6 @@ coverage.out
 
 # Tooling output
 .playwright-mcp/
+
+# CLI audit output
+reports/

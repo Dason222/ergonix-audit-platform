@@ -197,6 +197,10 @@ func (c *Crawler) fetchPage(ctx context.Context, client *http.Client, root *url.
 	for attempt := 0; attempt <= p.RetryCount; attempt++ {
 		if attempt > 0 {
 			backoff := time.Duration(attempt) * 500 * time.Millisecond
+			if page.StatusCode == http.StatusTooManyRequests {
+				// Rate limited: back off much harder before retrying.
+				backoff = time.Duration(attempt) * 3 * time.Second
+			}
 			select {
 			case <-time.After(backoff):
 			case <-ctx.Done():
@@ -206,8 +210,9 @@ func (c *Crawler) fetchPage(ctx context.Context, client *http.Client, root *url.
 		}
 		if err := c.doFetch(ctx, client, root, page); err != nil {
 			lastErr = err
-			// Retry on transport errors and 5xx; not on 4xx.
-			if page.StatusCode >= 400 && page.StatusCode < 500 {
+			// Retry on transport errors, 5xx and 429; not on other 4xx.
+			if page.StatusCode >= 400 && page.StatusCode < 500 &&
+				page.StatusCode != http.StatusTooManyRequests {
 				break
 			}
 			continue
@@ -262,6 +267,9 @@ func (c *Crawler) doFetch(ctx context.Context, client *http.Client, root *url.UR
 
 	if resp.StatusCode >= 500 {
 		return fmt.Errorf("server error %d", resp.StatusCode)
+	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return fmt.Errorf("rate limited (429)")
 	}
 	if !page.IsHTML() {
 		return nil

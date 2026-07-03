@@ -177,12 +177,7 @@ func (o *Orchestrator) run(ctx context.Context, a *models.Audit) {
 	}
 
 	stats.TotalIssues = len(allIssues)
-	for _, is := range allIssues {
-		stats.BySeverity[is.Severity]++
-		stats.ByCategory[is.Category]++
-		stats.ByWebsite[is.Website]++
-		stats.BySource[is.Source]++
-	}
+	tallyIssues(&stats, allIssues)
 	stats.DurationMs = time.Since(started).Milliseconds()
 	if a.Params.UseAI && o.analyzer == nil {
 		stats.AISkipped = true

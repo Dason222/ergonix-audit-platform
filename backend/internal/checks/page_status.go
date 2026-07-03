@@ -29,6 +29,11 @@ func (StatusCodeCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue 
 			fmt.Sprintf("Page not found (%d)", p.StatusCode),
 			fmt.Sprintf("%s returns HTTP %d but is linked from within the site.", p.URL, p.StatusCode),
 			"Fix or remove the links pointing at this URL, or restore/redirect the page.")}
+	case p.StatusCode == 429:
+		return []models.Issue{issue(p, models.CategoryNetwork, models.SeverityLow,
+			"Audit was rate limited (429)",
+			fmt.Sprintf("%s throttled the audit crawler even after retries; this page could not be inspected. This is a limitation of the audit run, not necessarily a site defect.", p.URL),
+			"Re-run the audit later or lower the crawler concurrency / raise CRAWL_DELAY_MS.")}
 	case p.StatusCode >= 400:
 		return []models.Issue{issue(p, models.CategoryNetwork, models.SeverityMedium,
 			fmt.Sprintf("Client error (%d)", p.StatusCode),

@@ -27,7 +27,7 @@ func Defaults() Config {
 		LargeJSKB:            500,
 		LargeCSSKB:           150,
 		MaxRedirects:         5,
-		LinkProbeConcurrency: 8,
+		LinkProbeConcurrency: 4,
 		LinkProbeTimeout:     10 * time.Second,
 		MaxExternalProbes:    100,
 		UserAgent:            "ErgonixAuditBot/1.0 (+internal site audit)",

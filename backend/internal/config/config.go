@@ -113,7 +113,7 @@ func Load() *Config {
 			LargeJSKB:            int64(envInt("CHECK_LARGE_JS_KB", 500)),
 			LargeCSSKB:           int64(envInt("CHECK_LARGE_CSS_KB", 150)),
 			MaxRedirects:         envInt("CHECK_MAX_REDIRECTS", 5),
-			LinkProbeConcurrency: envInt("LINK_PROBE_CONCURRENCY", 8),
+			LinkProbeConcurrency: envInt("LINK_PROBE_CONCURRENCY", 4),
 			LinkProbeTimeout:     time.Duration(envInt("LINK_PROBE_TIMEOUT_SEC", 10)) * time.Second,
 			MaxExternalProbes:    envInt("MAX_EXTERNAL_PROBES", 100),
 		},
