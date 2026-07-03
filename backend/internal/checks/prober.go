@@ -85,8 +85,14 @@ func (lp *LinkProber) ProbeSite(ctx context.Context, sc *SiteContext) LinkStatus
 	return results
 }
 
+// probeDelay is the minimum site-wide spacing between probe requests, so
+// link probing never hammers the shop into rate limiting (which would
+// poison results with 429s).
+const probeDelay = 250 * time.Millisecond
+
 // probe fetches URLs concurrently with HEAD, falling back to GET when the
-// server rejects HEAD (405/501) or errors.
+// server rejects HEAD (405/501) or errors. Requests are paced globally:
+// concurrency hides latency, but the request rate stays fixed.
 func (lp *LinkProber) probe(ctx context.Context, urls []string, results LinkStatusMap) {
 	if len(urls) == 0 {
 		return
@@ -94,11 +100,28 @@ func (lp *LinkProber) probe(ctx context.Context, urls []string, results LinkStat
 	client := &http.Client{Timeout: lp.cfg.LinkProbeTimeout}
 
 	var (
-		mu sync.Mutex
-		wg sync.WaitGroup
+		mu          sync.Mutex
+		wg          sync.WaitGroup
+		paceMu      sync.Mutex
+		nextAllowed time.Time
 	)
-	sem := make(chan struct{}, lp.cfg.LinkProbeConcurrency)
+	pace := func() bool {
+		paceMu.Lock()
+		wait := time.Until(nextAllowed)
+		if wait < 0 {
+			wait = 0
+		}
+		nextAllowed = time.Now().Add(wait + probeDelay)
+		paceMu.Unlock()
+		select {
+		case <-time.After(wait):
+			return true
+		case <-ctx.Done():
+			return false
+		}
+	}
 
+	sem := make(chan struct{}, lp.cfg.LinkProbeConcurrency)
 	for _, u := range urls {
 		if ctx.Err() != nil {
 			break
@@ -108,7 +131,7 @@ func (lp *LinkProber) probe(ctx context.Context, urls []string, results LinkStat
 		go func(u string) {
 			defer wg.Done()
 			defer func() { <-sem }()
-			res := lp.probeOne(ctx, client, u)
+			res := lp.probeOne(ctx, client, u, pace)
 			mu.Lock()
 			results[u] = res
 			mu.Unlock()
@@ -117,15 +140,11 @@ func (lp *LinkProber) probe(ctx context.Context, urls []string, results LinkStat
 	wg.Wait()
 }
 
-func (lp *LinkProber) probeOne(ctx context.Context, client *http.Client, u string) LinkResult {
-	// Politeness: pace each worker so probing never hammers the shop into
-	// rate-limiting (which would poison results with 429s).
-	select {
-	case <-time.After(150 * time.Millisecond):
-	case <-ctx.Done():
-		return LinkResult{Err: "cancelled"}
-	}
+func (lp *LinkProber) probeOne(ctx context.Context, client *http.Client, u string, pace func() bool) LinkResult {
 	for _, method := range []string{http.MethodHead, http.MethodGet} {
+		if !pace() { // both the HEAD and any GET fallback count against the rate
+			return LinkResult{Err: "cancelled"}
+		}
 		req, err := http.NewRequestWithContext(ctx, method, u, nil)
 		if err != nil {
 			return LinkResult{Err: err.Error()}

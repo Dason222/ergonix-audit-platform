@@ -67,11 +67,11 @@ Sample output:
 
 ```
 [https://ergonix.lt] crawl  6 pages fetched
-[https://ergonix.lt] checks 33 findings
+[https://ergonix.lt] checks 29 findings
 
 ================ ERGONIX WEBSITE AUDIT ================
-Status: completed   Websites: 1  Pages: 6  Duration: 5s
-Issues: 33  (critical 0 · high 11 · medium 18 · low 4)
+Status: completed   Websites: 1  Pages: 6  Duration: 27s
+Issues: 29  (critical 0 · high 5 · medium 20 · low 4)
 =======================================================
 
 [HIGH] Network · rule · https://ergonix.lt/
@@ -196,9 +196,12 @@ docs/
   a panicking check is recovered and logged, a failed AI call marks the audit
   `aiSkipped` instead of aborting it; an audit only fails when *every* site
   fails.
-- **Polite by construction** — custom `ErgonixAuditBot/1.0` user agent, per-
-  request delay, robots.txt group matching with longest-match Allow/Disallow,
-  external link probes capped, page/link bodies size-limited.
+- **Polite by construction** — custom `ErgonixAuditBot/1.0` user agent,
+  *site-wide* request pacing (the delay bounds total request rate, not
+  per-worker rate), robots.txt group matching with longest-match
+  Allow/Disallow, external link probes capped, page/link bodies size-limited.
+  HTTP 429 is treated as "the shop throttled us", never as a broken link,
+  and the crawler retries it with hard backoff.
 - **Async audits, sync API** — `POST /api/audits` returns instantly; progress
   is persisted per site and the UI polls every 2 s while running, so a browser
   refresh (or backend restart) never loses a report.

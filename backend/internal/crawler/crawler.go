@@ -90,6 +90,33 @@ func (c *Crawler) Crawl(ctx context.Context, website string, p models.AuditParam
 	queue = append(queue, frontierItem{url: start, depth: 0})
 	visited[start] = true
 
+	// Site-wide request pacing: CrawlDelay is the minimum spacing between
+	// ANY two requests to the site, regardless of worker count. Without
+	// this, N workers each sleeping independently still hit the shop at
+	// N× the intended rate and trip its rate limiter.
+	var (
+		paceMu      sync.Mutex
+		nextAllowed time.Time
+	)
+	pace := func() error {
+		paceMu.Lock()
+		wait := time.Until(nextAllowed)
+		if wait < 0 {
+			wait = 0
+		}
+		nextAllowed = time.Now().Add(wait + c.cfg.CrawlDelay)
+		paceMu.Unlock()
+		if wait == 0 {
+			return ctx.Err()
+		}
+		select {
+		case <-time.After(wait):
+			return nil
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+
 	// Worker pool over a shared frontier. cond broadcasts when the queue
 	// changes or work finishes so idle workers can either pick up new URLs
 	// or detect completion (queue empty + nothing in flight).
@@ -115,7 +142,7 @@ func (c *Crawler) Crawl(ctx context.Context, website string, p models.AuditParam
 			inFlight++
 			mu.Unlock()
 
-			page := c.fetchPage(ctx, client, root, website, item, p)
+			page := c.fetchPage(ctx, client, root, website, item, p, pace)
 
 			mu.Lock()
 			inFlight--
@@ -172,8 +199,9 @@ func (c *Crawler) Crawl(ctx context.Context, website string, p models.AuditParam
 }
 
 // fetchPage downloads one URL with retries and extracts its content.
+// pace enforces the site-wide politeness interval before every attempt.
 func (c *Crawler) fetchPage(ctx context.Context, client *http.Client, root *url.URL,
-	website string, item frontierItem, p models.AuditParams) *models.Page {
+	website string, item frontierItem, p models.AuditParams, pace func() error) *models.Page {
 
 	page := &models.Page{
 		Website:   website,
@@ -183,18 +211,14 @@ func (c *Crawler) fetchPage(ctx context.Context, client *http.Client, root *url.
 		CrawledAt: time.Now(),
 	}
 
-	// Politeness delay before every request.
-	if c.cfg.CrawlDelay > 0 {
-		select {
-		case <-time.After(c.cfg.CrawlDelay):
-		case <-ctx.Done():
-			page.FetchError = "cancelled"
-			return page
-		}
-	}
-
 	var lastErr error
 	for attempt := 0; attempt <= p.RetryCount; attempt++ {
+		if pace != nil {
+			if err := pace(); err != nil {
+				page.FetchError = "cancelled"
+				return page
+			}
+		}
 		if attempt > 0 {
 			backoff := time.Duration(attempt) * 500 * time.Millisecond
 			if page.StatusCode == http.StatusTooManyRequests {
