@@ -15,6 +15,10 @@ const fixtureHTML = `<!DOCTYPE html>
   <title>Ergonominė kėdė | Ergonix</title>
   <meta name="description" content="Geriausia ergonominė kėdė namams ir biurui.">
   <link rel="canonical" href="https://ergonix.lt/products/kede">
+  <meta name="robots" content="index, follow">
+  <link rel="alternate" hreflang="lt" href="https://ergonix.lt/products/kede">
+  <link rel="alternate" hreflang="pl" href="https://ergonix.pl/products/kede">
+  <meta property="og:title" content="Kėdė">
   <link rel="stylesheet" href="/assets/main.css">
   <style>.x{color:red}</style>
 </head>
@@ -73,6 +77,15 @@ func TestExtractBasics(t *testing.T) {
 	}
 	if len(p.H2s) != 1 { // empty h2 skipped
 		t.Errorf("h2s = %v", p.H2s)
+	}
+	if p.MetaRobots != "index, follow" {
+		t.Errorf("metaRobots = %q", p.MetaRobots)
+	}
+	if len(p.Hreflangs) != 2 || p.Hreflangs[0] != "lt" || p.Hreflangs[1] != "pl" {
+		t.Errorf("hreflangs = %v", p.Hreflangs)
+	}
+	if len(p.OGProperties) != 1 || p.OGProperties[0] != "og:title" {
+		t.Errorf("ogProperties = %v", p.OGProperties)
 	}
 }
 

@@ -22,12 +22,19 @@ type Playwright struct {
 }
 
 // NewPlaywright starts the Playwright driver and launches headless Chromium.
-// The caller should fall back to NewNoop() when this returns an error
-// (driver or browsers not installed).
+// If the driver or browser is missing it attempts a one-time install
+// (downloads ~150 MB) before giving up. The caller should fall back to
+// NewNoop() when this returns an error.
 func NewPlaywright(log *slog.Logger) (Service, error) {
 	pw, err := playwright.Run()
 	if err != nil {
-		return nil, fmt.Errorf("start playwright driver: %w", err)
+		log.Info("Playwright driver missing — installing driver + Chromium (one-time download)")
+		if ierr := playwright.Install(&playwright.RunOptions{Browsers: []string{"chromium"}}); ierr != nil {
+			return nil, fmt.Errorf("start playwright driver: %w (auto-install failed: %v)", err, ierr)
+		}
+		if pw, err = playwright.Run(); err != nil {
+			return nil, fmt.Errorf("start playwright driver after install: %w", err)
+		}
 	}
 	b, err := pw.Chromium.Launch(playwright.BrowserTypeLaunchOptions{
 		Headless: playwright.Bool(true),

@@ -19,6 +19,8 @@ func goodPage() *models.Page {
 		MetaDescription: "Patogi ergonominė kėdė su juosmens atrama, tinkanti ilgam darbui prie kompiuterio.",
 		Canonical:       "https://ergonix.lt/products/kede",
 		Language:        "lt",
+		OGProperties:    []string{"og:title", "og:image", "og:description"},
+		Hreflangs:       []string{"lt", "lv", "et", "cs", "pl"},
 		H1s:             []string{"Ergonominė biuro kėdė"},
 		Images:          []models.Image{{Src: "https://ergonix.lt/img/kede.jpg", Alt: "Kėdė", HasAlt: true}},
 		Buttons:         []models.Button{{Text: "Į krepšelį", Type: "submit", HasAction: true}},
@@ -53,6 +55,7 @@ func TestGoodPageProducesNoIssues(t *testing.T) {
 		&EmptyButtonCheck{}, &ButtonActionCheck{}, &FormSubmitCheck{},
 		&ConsoleErrorCheck{}, &FailedRequestCheck{}, &LargeBundleCheck{},
 		&RedirectCheck{}, &SEOBasicsCheck{},
+		&NoindexCheck{}, &OGTagsCheck{}, &CurrencyCheck{},
 	}
 	for _, chk := range checksList {
 		if got := chk.CheckPage(context, p); len(got) != 0 {
@@ -352,6 +355,54 @@ func TestEngineRunSetsMetadata(t *testing.T) {
 		if is.CheckID == "" {
 			t.Errorf("issue %q missing CheckID (provenance)", is.Title)
 		}
+	}
+}
+
+func TestMetaChecks(t *testing.T) {
+	p := goodPage()
+	p.MetaRobots = "noindex, nofollow"
+	got := runPage(t, &NoindexCheck{}, p)
+	if len(got) != 1 || got[0].Severity != models.SeverityHigh {
+		t.Errorf("noindex: %+v", got)
+	}
+
+	p = goodPage()
+	p.OGProperties = []string{"og:description"} // title+image missing
+	got = runPage(t, &OGTagsCheck{}, p)
+	if len(got) != 1 || !strings.Contains(got[0].Description, "og:title") {
+		t.Errorf("open graph: %+v", got)
+	}
+}
+
+func TestCurrencyCheck(t *testing.T) {
+	p := goodPage()
+	p.Prices = []string{"129,99 €", "49,99 zł"} // zł does not belong on .lt
+	got := runPage(t, &CurrencyCheck{}, p)
+	if len(got) != 1 || got[0].Severity != models.SeverityHigh {
+		t.Fatalf("wrong currency: %+v", got)
+	}
+	if !strings.Contains(got[0].Description, "zł") || got[0].Confidence != 0.85 {
+		t.Errorf("wrong currency details: %+v", got[0])
+	}
+
+	p = goodPage()
+	p.Prices = []string{"129,99 €", "12.50 EUR"}
+	if got := runPage(t, &CurrencyCheck{}, p); len(got) != 0 {
+		t.Errorf("correct currency should be silent: %+v", got)
+	}
+}
+
+func TestHreflangCheck(t *testing.T) {
+	p1, p2 := goodPage(), goodPage()
+	p1.Hreflangs, p2.Hreflangs = nil, nil
+	got := (&HreflangCheck{}).CheckSite(sc(p1, p2))
+	if len(got) != 1 || got[0].Category != models.CategorySEO {
+		t.Errorf("missing hreflang: %+v", got)
+	}
+
+	p1.Hreflangs = []string{"lt", "pl"}
+	if got := (&HreflangCheck{}).CheckSite(sc(p1, p2)); len(got) != 0 {
+		t.Errorf("partial hreflang should be silent: %+v", got)
 	}
 }
 

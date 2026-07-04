@@ -45,10 +45,16 @@ type EmptyButtonCheck struct{}
 func (EmptyButtonCheck) Name() string { return "empty-button" }
 
 func (EmptyButtonCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue {
-	var elements []string
+	var (
+		elements []string
+		snippets []string
+	)
 	for _, b := range p.Buttons {
 		if b.Text == "" {
 			elements = append(elements, buttonLabel(b))
+			if b.Snippet != "" {
+				snippets = append(snippets, b.Snippet)
+			}
 		}
 	}
 	if len(elements) == 0 {
@@ -59,7 +65,7 @@ func (EmptyButtonCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue
 		fmt.Sprintf("%d button(s) have no text, value or aria-label; users and screen readers see a blank control: %s.",
 			len(elements), strings.Join(capStrings(elements, 5), "; ")),
 		"Give every button visible text or an aria-label.")
-	is.Details = map[string]any{"elements": elements}
+	is.Details = map[string]any{"elements": elements, "snippets": capStrings(snippets, 5)}
 	return []models.Issue{is}
 }
 
@@ -109,6 +115,9 @@ func (FormSubmitCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue 
 				where, f.Action, f.Inputs),
 			"Add a <button type=\"submit\"> or input[type=submit] to the form.")
 		is.Details = map[string]any{"element": where}
+		if f.Snippet != "" {
+			is.Details["snippets"] = []string{f.Snippet}
+		}
 		issues = append(issues, is)
 	}
 	if len(issues) > 3 {

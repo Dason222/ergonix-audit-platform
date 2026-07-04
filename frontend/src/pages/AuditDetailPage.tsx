@@ -8,7 +8,7 @@ import { StatusBadge } from "../components/badges";
 import { ErrorNote, Panel, Spinner, StatCard } from "../components/panels";
 import { useAudit, useCancelAudit, useIssues, usePages } from "../hooks/useApi";
 import type { Audit, AuditSite, Page } from "../types/api";
-import { fmtDateTime, fmtDuration, hostOf } from "../utils/format";
+import { fmtDateTime, fmtDuration, hostOf, pathOf } from "../utils/format";
 
 const STAGES = [
   { key: "crawling", label: "Crawl" },
@@ -306,6 +306,72 @@ function ResultView({ audit }: { audit: Audit }) {
       >
         <IssuesTable issues={issues} pageByUrl={pageByUrl} />
       </Panel>
+
+      <Panel title={`Crawled pages — insights (${pagesData?.pages.length ?? 0})`} className="rise rise-4">
+        <PagesInsights pages={pagesData?.pages ?? []} />
+      </Panel>
+    </div>
+  );
+}
+
+// PagesInsights lists every scraped page with its key health metrics.
+function PagesInsights({ pages }: { pages: Page[] }) {
+  if (pages.length === 0) {
+    return <div className="px-4 py-8 text-center text-xs text-ink-400">No pages recorded.</div>;
+  }
+  const sorted = [...pages].sort((a, b) => a.depth - b.depth || a.url.localeCompare(b.url));
+  return (
+    <div className="max-h-[420px] overflow-auto">
+      <table className="w-full text-[12.5px]">
+        <thead className="sticky top-0 bg-panel">
+          <tr className="border-b border-line text-left">
+            <th className="microlabel px-4 py-2">Page</th>
+            <th className="microlabel px-4 py-2">Status</th>
+            <th className="microlabel px-4 py-2 text-right">Depth</th>
+            <th className="microlabel px-4 py-2 text-right">Response</th>
+            <th className="microlabel px-4 py-2 text-right">Load</th>
+            <th className="microlabel px-4 py-2 text-right">Size</th>
+            <th className="microlabel px-4 py-2">Title</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((p) => {
+            const bad = !!p.fetchError || p.statusCode >= 400;
+            const slow = p.responseTimeMs > 1500;
+            return (
+              <tr key={p.id} className="border-b border-line/60 last:border-0 hover:bg-surface">
+                <td className="max-w-[260px] truncate px-4 py-2 font-mono text-[11px]">
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={p.url}
+                    className="text-signal-600 hover:underline"
+                  >
+                    {pathOf(p.url) || "/"}
+                  </a>
+                </td>
+                <td className={`px-4 py-2 font-mono ${bad ? "font-semibold text-critical" : "text-low"}`}>
+                  {p.fetchError ? "ERR" : p.statusCode}
+                </td>
+                <td className="px-4 py-2 text-right font-mono">{p.depth}</td>
+                <td className={`px-4 py-2 text-right font-mono ${slow ? "font-semibold text-medium" : ""}`}>
+                  {p.responseTimeMs} ms
+                </td>
+                <td className="px-4 py-2 text-right font-mono">
+                  {p.loadTimeMs ? `${p.loadTimeMs} ms` : "—"}
+                </td>
+                <td className="px-4 py-2 text-right font-mono">
+                  {p.contentLength ? `${Math.round(p.contentLength / 1024)} KB` : "—"}
+                </td>
+                <td className="max-w-[280px] truncate px-4 py-2 text-ink-700" title={p.title}>
+                  {p.title || <span className="text-critical">— missing —</span>}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

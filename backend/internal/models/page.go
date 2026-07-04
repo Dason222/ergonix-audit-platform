@@ -23,22 +23,26 @@ type Link struct {
 }
 
 // Form is one <form> found on a page. Hint identifies the element in the
-// page source (id/class/input names) so a reader can find it.
+// page source (id/class/input names); Snippet is its truncated raw HTML so
+// findings can show exactly what the scraper saw.
 type Form struct {
 	Action    string `json:"action"`
 	Method    string `json:"method"`
 	Inputs    int    `json:"inputs"`
 	HasSubmit bool   `json:"hasSubmit"`
 	Hint      string `json:"hint,omitempty"`
+	Snippet   string `json:"snippet,omitempty"`
 }
 
 // Button is one <button> (or input[type=button|submit]) found on a page.
-// Hint identifies the element in the page source (id/class/aria-label).
+// Hint identifies the element (id/class/aria-label); Snippet is its
+// truncated raw HTML.
 type Button struct {
 	Text      string `json:"text"`
 	Type      string `json:"type"`
 	HasAction bool   `json:"hasAction"`
 	Hint      string `json:"hint,omitempty"`
+	Snippet   string `json:"snippet,omitempty"`
 }
 
 // Resource is an external script or stylesheet reference.
@@ -57,11 +61,14 @@ type Page struct {
 	FinalURL string `json:"finalUrl"`
 	Depth    int    `json:"depth"`
 
-	StatusCode      int    `json:"statusCode"`
-	Title           string `json:"title"`
-	MetaDescription string `json:"metaDescription"`
-	Canonical       string `json:"canonical"`
-	Language        string `json:"language"`
+	StatusCode      int      `json:"statusCode"`
+	Title           string   `json:"title"`
+	MetaDescription string   `json:"metaDescription"`
+	Canonical       string   `json:"canonical"`
+	Language        string   `json:"language"`
+	MetaRobots      string   `json:"metaRobots,omitempty"`
+	Hreflangs       []string `json:"hreflangs,omitempty"`
+	OGProperties    []string `json:"ogProperties,omitempty"`
 
 	H1s         []string   `json:"h1s"`
 	H2s         []string   `json:"h2s"`

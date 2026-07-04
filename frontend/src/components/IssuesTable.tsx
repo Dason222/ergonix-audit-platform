@@ -47,6 +47,9 @@ function IssueDetails({ issue, page }: { issue: Issue; page?: Page }) {
     : typeof details.element === "string"
       ? [details.element]
       : [];
+  const snippets = Array.isArray(details.snippets)
+    ? (details.snippets as unknown[]).filter((s): s is string => typeof s === "string")
+    : [];
 
   return (
     <div className="grid gap-3 rounded-md border border-line bg-panel p-4 text-[12.5px] md:grid-cols-2">
@@ -74,7 +77,8 @@ function IssueDetails({ issue, page }: { issue: Issue; page?: Page }) {
         {elements.length > 0 && (
           <>
             <div className="microlabel mb-1 mt-3">
-              Affected elements (find via DevTools / view-source)
+              Affected elements (paste into DevTools console:{" "}
+              document.querySelector('…'))
             </div>
             <ul className="space-y-0.5">
               {elements.map((e, i) => (
@@ -85,6 +89,23 @@ function IssueDetails({ issue, page }: { issue: Issue; page?: Page }) {
                 </li>
               ))}
             </ul>
+          </>
+        )}
+        {snippets.length > 0 && (
+          <>
+            <div className="microlabel mb-1 mt-3">
+              What the scraper saw (raw HTML)
+            </div>
+            <div className="space-y-1.5">
+              {snippets.map((s, i) => (
+                <pre
+                  key={i}
+                  className="overflow-x-auto whitespace-pre-wrap break-all rounded-md border border-line bg-ink-900 px-2.5 py-2 font-mono text-[10.5px] leading-relaxed text-slate-300"
+                >
+                  {s}
+                </pre>
+              ))}
+            </div>
           </>
         )}
       </div>

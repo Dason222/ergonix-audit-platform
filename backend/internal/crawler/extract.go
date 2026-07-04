@@ -28,6 +28,19 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 	p.Canonical = strings.TrimSpace(p.Canonical)
 	p.Language, _ = doc.Find("html").First().Attr("lang")
 	p.Language = strings.ToLower(strings.TrimSpace(p.Language))
+	p.MetaRobots, _ = doc.Find(`head meta[name="robots"]`).First().Attr("content")
+	p.MetaRobots = strings.ToLower(strings.TrimSpace(p.MetaRobots))
+	doc.Find(`head link[rel="alternate"][hreflang]`).Each(func(_ int, s *goquery.Selection) {
+		if hl, _ := s.Attr("hreflang"); hl != "" {
+			p.Hreflangs = append(p.Hreflangs, strings.ToLower(hl))
+		}
+	})
+	doc.Find(`head meta[property]`).Each(func(_ int, s *goquery.Selection) {
+		if prop, _ := s.Attr("property"); strings.HasPrefix(prop, "og:") {
+			p.OGProperties = append(p.OGProperties, strings.ToLower(prop))
+		}
+	})
+	p.OGProperties = uniqueStrings(p.OGProperties)
 
 	doc.Find("h1").Each(func(_ int, s *goquery.Selection) {
 		p.H1s = append(p.H1s, collapseSpace(s.Text()))
@@ -97,6 +110,7 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 			Inputs:    s.Find("input, select, textarea").Length(),
 			HasSubmit: hasSubmit,
 			Hint:      hint,
+			Snippet:   elementSnippet(s),
 		})
 	})
 
@@ -116,6 +130,7 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 				Type:      strings.ToLower(btnType),
 				HasAction: buttonHasAction(s),
 				Hint:      elementHint(s),
+				Snippet:   elementSnippet(s),
 			})
 		})
 
@@ -241,6 +256,25 @@ func elementHint(s *goquery.Selection) string {
 		hint = hint[:90] + "…"
 	}
 	return hint
+}
+
+// elementSnippet returns the element's raw HTML, whitespace-collapsed and
+// truncated, so findings can show exactly what the scraper saw.
+func elementSnippet(s *goquery.Selection) string {
+	html, err := goquery.OuterHtml(s)
+	if err != nil {
+		return ""
+	}
+	html = collapseSpace(html)
+	const maxLen = 240
+	if len(html) > maxLen {
+		cut := maxLen
+		for cut > 0 && (html[cut]&0xC0) == 0x80 { // don't split a UTF-8 rune
+			cut--
+		}
+		html = html[:cut] + "…"
+	}
+	return html
 }
 
 func resolveRef(base *url.URL, ref string) string {
