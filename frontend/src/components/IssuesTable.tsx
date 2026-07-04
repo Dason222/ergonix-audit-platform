@@ -15,6 +15,65 @@ import { ConfidenceMeter, SeverityBadge, SourceBadge } from "./badges";
 
 const SEV_ORDER: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
+function UrlLink({ href, tone = "signal" }: { href: string; tone?: "signal" | "critical" }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={`break-all font-mono text-[11px] hover:underline ${
+        tone === "critical" ? "text-critical" : "text-signal-600"
+      }`}
+    >
+      {href}
+    </a>
+  );
+}
+
+// IssueDetails renders the expanded row: full text plus every URL buried in
+// the issue's details (broken-link target, duplicate-content page list) as
+// clickable links.
+function IssueDetails({ issue }: { issue: Issue }) {
+  const details = issue.details ?? {};
+  const target = typeof details.target === "string" ? details.target : null;
+  const affectedPages = Array.isArray(details.pages)
+    ? (details.pages as unknown[]).filter((p): p is string => typeof p === "string")
+    : [];
+
+  return (
+    <div className="grid gap-3 rounded-md border border-line bg-panel p-4 text-[12.5px] md:grid-cols-2">
+      <div>
+        <div className="microlabel mb-1">Full description</div>
+        <p className="leading-relaxed text-ink-700">{issue.description || "—"}</p>
+        {target && (
+          <>
+            <div className="microlabel mb-1 mt-3">Problem link (open to verify)</div>
+            <UrlLink href={target} tone="critical" />
+          </>
+        )}
+        {affectedPages.length > 0 && (
+          <>
+            <div className="microlabel mb-1 mt-3">Affected pages</div>
+            <ul className="space-y-0.5">
+              {affectedPages.map((p) => (
+                <li key={p}>
+                  <UrlLink href={p} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+      <div>
+        <div className="microlabel mb-1">Suggested fix</div>
+        <p className="leading-relaxed text-ink-700">{issue.suggestedFix || "—"}</p>
+        <div className="microlabel mb-1 mt-3">Found on page</div>
+        <UrlLink href={issue.pageUrl} />
+      </div>
+    </div>
+  );
+}
+
 const col = createColumnHelper<Issue>();
 
 export default function IssuesTable({ issues }: { issues: Issue[] }) {
@@ -146,29 +205,7 @@ export default function IssuesTable({ issues }: { issues: Issue[] }) {
                 {expanded === row.original.id && (
                   <tr className="border-b border-line/60 bg-surface">
                     <td colSpan={columns.length} className="px-5 pb-4 pt-1">
-                      <div className="grid gap-3 rounded-md border border-line bg-panel p-4 text-[12.5px] md:grid-cols-2">
-                        <div>
-                          <div className="microlabel mb-1">Full description</div>
-                          <p className="leading-relaxed text-ink-700">
-                            {row.original.description || "—"}
-                          </p>
-                        </div>
-                        <div>
-                          <div className="microlabel mb-1">Suggested fix</div>
-                          <p className="leading-relaxed text-ink-700">
-                            {row.original.suggestedFix || "—"}
-                          </p>
-                          <div className="microlabel mb-1 mt-3">Page</div>
-                          <a
-                            href={row.original.pageUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="break-all font-mono text-[11px] text-signal-600 hover:underline"
-                          >
-                            {row.original.pageUrl}
-                          </a>
-                        </div>
-                      </div>
+                      <IssueDetails issue={row.original} />
                     </td>
                   </tr>
                 )}
