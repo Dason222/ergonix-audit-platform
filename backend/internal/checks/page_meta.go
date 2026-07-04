@@ -129,6 +129,14 @@ var cartContextWords = []string{
 	"tarpinė suma", "iš viso", "krepšel", "cart", "subtotal", "total",
 	"kopā", "grozs", "celkem", "mezisouč", "košík", "razem", "koszyk",
 	"kokku", "vahesumma", "ostukorv", "suma",
+	// Deliberate zero displays: free gifts, discounts/savings calculators,
+	// free-returns messaging (all 5 locales + en).
+	"prezent", "darmo", "rabat", "zaoszczędz", "zwrot",
+	"dovan", "nemokam", "nuolaid", "grąžin",
+	"dāvan", "bezmaks", "atlaid",
+	"kingitus", "tasuta", "allahind",
+	"dárek", "zdarma", "sleva", "vrácen",
+	"gift", "free", "discount", "saving",
 }
 
 // zeroPriceLegit reports whether every occurrence of price in the page text

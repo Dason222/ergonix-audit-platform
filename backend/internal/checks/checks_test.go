@@ -499,6 +499,14 @@ func TestZeroPriceCheck(t *testing.T) {
 		t.Errorf("substring of larger price flagged: %+v", got)
 	}
 
+	// Free-gift / savings-calculator zeros are deliberate, not bugs.
+	p = goodPage()
+	p.Prices = []string{"0,00 zł"}
+	p.VisibleText = "Prezenty już w zestawie MagMount organizer kabli 0,00 zł 29,00 zł"
+	if got := runPage(t, &ZeroPriceCheck{}, p); len(got) != 0 {
+		t.Errorf("free gift price flagged: %+v", got)
+	}
+
 	// Same amount in product context stays flagged.
 	p = goodPage()
 	p.Prices = []string{"€0,00"}
