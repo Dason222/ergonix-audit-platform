@@ -136,6 +136,16 @@ var cartContextWords = []string{
 func zeroPriceLegit(text, price string) bool {
 	found := false
 	for idx := strings.Index(text, price); idx >= 0; {
+		// Skip matches inside a larger number: "1.960,00 zł" contains
+		// the substring "0,00 zł" but is not a zero price.
+		if idx > 0 && (text[idx-1] >= '0' && text[idx-1] <= '9' || text[idx-1] == '.' || text[idx-1] == ',') {
+			next := strings.Index(text[idx+1:], price)
+			if next < 0 {
+				break
+			}
+			idx = idx + 1 + next
+			continue
+		}
 		found = true
 		start := idx - 60
 		if start < 0 {

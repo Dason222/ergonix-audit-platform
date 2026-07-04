@@ -490,6 +490,15 @@ func TestZeroPriceCheck(t *testing.T) {
 		t.Errorf("cart subtotal flagged: %+v", got)
 	}
 
+	// "0,00 zł" inside "1.960,00 zł" is a substring of a normal price, and
+	// the real standalone occurrence is the cart subtotal — must be silent.
+	p = goodPage()
+	p.Prices = []string{"0,00 zł"}
+	p.VisibleText = "Suma częściowa 0,00 zł Razem ... Fotel Od 1.059,00 zł 1.960,00 zł Nowość"
+	if got := runPage(t, &ZeroPriceCheck{}, p); len(got) != 0 {
+		t.Errorf("substring of larger price flagged: %+v", got)
+	}
+
 	// Same amount in product context stays flagged.
 	p = goodPage()
 	p.Prices = []string{"€0,00"}
