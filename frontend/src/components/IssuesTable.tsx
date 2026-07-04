@@ -16,15 +16,17 @@ import { ConfidenceMeter, SeverityBadge, SourceBadge } from "./badges";
 const SEV_ORDER: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
 function UrlLink({ href, tone = "signal" }: { href: string; tone?: "signal" | "critical" }) {
+  // URLs come from crawled third-party HTML — only ever link http(s), so a
+  // javascript:/data: URI in audit data can't execute on click.
+  const safe = /^https?:\/\//i.test(href);
+  const cls = `break-all font-mono text-[11px] ${
+    tone === "critical" ? "text-critical" : "text-signal-600"
+  }`;
+  if (!safe) {
+    return <span className={cls}>{href}</span>;
+  }
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`break-all font-mono text-[11px] hover:underline ${
-        tone === "critical" ? "text-critical" : "text-signal-600"
-      }`}
-    >
+    <a href={href} target="_blank" rel="noreferrer" className={`${cls} hover:underline`}>
       {href}
     </a>
   );
@@ -108,18 +110,26 @@ export default function IssuesTable({ issues }: { issues: Issue[] }) {
       }),
       col.accessor("pageUrl", {
         header: "Page",
-        cell: (info) => (
-          <a
-            href={info.getValue()}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            title={info.getValue()}
-            className="block max-w-[180px] truncate font-mono text-[11px] text-signal-600 hover:underline"
-          >
-            {pathOf(info.getValue()) || "/"}
-          </a>
-        ),
+        cell: (info) =>
+          /^https?:\/\//i.test(info.getValue()) ? (
+            <a
+              href={info.getValue()}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={info.getValue()}
+              className="block max-w-[180px] truncate font-mono text-[11px] text-signal-600 hover:underline"
+            >
+              {pathOf(info.getValue()) || "/"}
+            </a>
+          ) : (
+            <span
+              title={info.getValue()}
+              className="block max-w-[180px] truncate font-mono text-[11px] text-ink-400"
+            >
+              {pathOf(info.getValue()) || "/"}
+            </span>
+          ),
         size: 190,
       }),
       col.accessor("title", {
