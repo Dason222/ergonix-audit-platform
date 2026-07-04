@@ -75,6 +75,9 @@ func (e *Engine) registerDefaults() {
 		&OGTagsCheck{},
 		&CurrencyCheck{},
 		&TemplateErrorCheck{},
+		&ZeroPriceCheck{},
+		&InsecureFormCheck{},
+		&WrongLanguageCheck{},
 	}
 	e.siteChecks = []SiteCheck{
 		&BrokenLinkCheck{},
@@ -83,6 +86,7 @@ func (e *Engine) registerDefaults() {
 		&HreflangCheck{},
 		&FaviconCheck{},
 		&MobileBasicsCheck{},
+		&SecurityHeadersCheck{},
 	}
 }
 
@@ -93,6 +97,7 @@ func (e *Engine) Run(ctx context.Context, sc *SiteContext) []models.Issue {
 		sc.Cfg = e.cfg
 	}
 	sc.Links = e.prober.ProbeSite(ctx, sc)
+	e.prober.sizeAssets(ctx, sc)
 
 	var issues []models.Issue
 	for _, p := range sc.Pages {

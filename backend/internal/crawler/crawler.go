@@ -278,6 +278,19 @@ func (c *Crawler) doFetch(ctx context.Context, client *http.Client, root *url.UR
 	page.ContentType = resp.Header.Get("Content-Type")
 	page.FinalURL = resp.Request.URL.String()
 	page.RedirectChain = redirectChain(resp)
+	// Security-relevant headers for the checks engine.
+	for _, h := range []string{
+		"Strict-Transport-Security", "Content-Security-Policy",
+		"X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy",
+		"Server", "X-Powered-By",
+	} {
+		if v := resp.Header.Get(h); v != "" {
+			if page.Headers == nil {
+				page.Headers = map[string]string{}
+			}
+			page.Headers[h] = v
+		}
+	}
 
 	body, err := io.ReadAll(io.LimitReader(resp.Body, c.cfg.MaxBodyBytes))
 	if err != nil {

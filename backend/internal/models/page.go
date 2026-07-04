@@ -90,6 +90,8 @@ type Page struct {
 	ContentLength  int64  `json:"contentLength"`
 	ContentType    string `json:"contentType"`
 
+	// Headers holds security-relevant response headers (whitelisted).
+	Headers        map[string]string `json:"headers,omitempty"`
 	RedirectChain  []string `json:"redirectChain,omitempty"`
 	ConsoleErrors  []string `json:"consoleErrors,omitempty"`
 	FailedRequests []string `json:"failedRequests,omitempty"`

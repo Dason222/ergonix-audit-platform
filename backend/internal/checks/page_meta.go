@@ -3,6 +3,7 @@ package checks
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/ergonix/auditor/backend/internal/models"
@@ -110,6 +111,73 @@ func (CurrencyCheck) CheckPage(sc *SiteContext, p *models.Page) []models.Issue {
 		"Fix the price display / market configuration so customers see their local currency.")
 	is.Confidence = 0.85 // legal fine print may legitimately mention other currencies
 	is.Details = map[string]any{"expectedCurrency": expected, "prices": offending}
+	return []models.Issue{is}
+}
+
+// zeroPriceRe matches a standalone 0,00 / 0.00 amount (not 10,00 etc.).
+var zeroPriceRe = regexp.MustCompile(`(^|[^\d.,])0[.,]0{1,2}([^\d]|$)`)
+
+// ZeroPriceCheck flags products displayed at 0.00 — almost always a broken
+// price feed, and it invites checkout chaos.
+type ZeroPriceCheck struct{}
+
+func (ZeroPriceCheck) Name() string { return "zero-price" }
+
+// cartContextWords mark places where a zero amount is legitimate: the empty
+// cart / order-summary widgets rendered into every page (all 5 locales).
+var cartContextWords = []string{
+	"tarpinė suma", "iš viso", "krepšel", "cart", "subtotal", "total",
+	"kopā", "grozs", "celkem", "mezisouč", "košík", "razem", "koszyk",
+	"kokku", "vahesumma", "ostukorv", "suma",
+}
+
+// zeroPriceLegit reports whether every occurrence of price in the page text
+// sits in cart/summary context (empty-cart subtotals are not price bugs).
+func zeroPriceLegit(text, price string) bool {
+	found := false
+	for idx := strings.Index(text, price); idx >= 0; {
+		found = true
+		start := idx - 60
+		if start < 0 {
+			start = 0
+		}
+		ctx := strings.ToLower(text[start:idx])
+		inCart := false
+		for _, w := range cartContextWords {
+			if strings.Contains(ctx, w) {
+				inCart = true
+				break
+			}
+		}
+		if !inCart {
+			return false // at least one occurrence looks like a real price
+		}
+		next := strings.Index(text[idx+1:], price)
+		if next < 0 {
+			break
+		}
+		idx = idx + 1 + next
+	}
+	return found // all occurrences were cart context (or price not in text → false)
+}
+
+func (ZeroPriceCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue {
+	var offending []string
+	for _, price := range p.Prices {
+		if zeroPriceRe.MatchString(price) && !zeroPriceLegit(p.VisibleText, price) {
+			offending = append(offending, price)
+		}
+	}
+	if len(offending) == 0 {
+		return nil
+	}
+	is := issue(p, models.CategoryLogic, models.SeverityHigh,
+		"Product price displayed as zero",
+		fmt.Sprintf("The page shows zero amounts: %s. This is almost always a broken price feed or misconfigured market.",
+			strings.Join(capStrings(uniqueStr(offending), 5), "; ")),
+		"Fix the product's price configuration for this market.")
+	is.Confidence = 0.9 // "free shipping from 0,00" style strings are rare but possible
+	is.Details = map[string]any{"prices": offending}
 	return []models.Issue{is}
 }
 

@@ -60,6 +60,7 @@ func TestGoodPageProducesNoIssues(t *testing.T) {
 		&ConsoleErrorCheck{}, &FailedRequestCheck{}, &LargeBundleCheck{},
 		&RedirectCheck{}, &SEOBasicsCheck{},
 		&NoindexCheck{}, &OGTagsCheck{}, &CurrencyCheck{}, &TemplateErrorCheck{},
+		&ZeroPriceCheck{}, &InsecureFormCheck{}, &WrongLanguageCheck{},
 	}
 	for _, chk := range checksList {
 		if got := chk.CheckPage(context, p); len(got) != 0 {
@@ -464,6 +465,92 @@ func TestMobileBasicsCheck(t *testing.T) {
 
 	if got := (&MobileBasicsCheck{}).CheckSite(sc(goodPage())); len(got) != 0 {
 		t.Errorf("healthy pages should be silent: %+v", got)
+	}
+}
+
+func TestZeroPriceCheck(t *testing.T) {
+	p := goodPage()
+	p.Prices = []string{"0,00 €", "129,99 €"}
+	got := runPage(t, &ZeroPriceCheck{}, p)
+	if len(got) != 1 || got[0].Severity != models.SeverityHigh {
+		t.Errorf("zero price: %+v", got)
+	}
+
+	p = goodPage()
+	p.Prices = []string{"10,00 €", "129,99 €"} // 10,00 is not zero
+	if got := runPage(t, &ZeroPriceCheck{}, p); len(got) != 0 {
+		t.Errorf("10,00 flagged as zero: %+v", got)
+	}
+
+	// Empty-cart subtotal is legitimate, not a price bug.
+	p = goodPage()
+	p.Prices = []string{"€0,00"}
+	p.VisibleText = "PVM mokėtojo kodas Tarpinė suma €0,00 Iš viso (Su PVM)"
+	if got := runPage(t, &ZeroPriceCheck{}, p); len(got) != 0 {
+		t.Errorf("cart subtotal flagged: %+v", got)
+	}
+
+	// Same amount in product context stays flagged.
+	p = goodPage()
+	p.Prices = []string{"€0,00"}
+	p.VisibleText = "Ergonominė kėdė ProFit kaina €0,00 Į krepšelį"
+	if got := runPage(t, &ZeroPriceCheck{}, p); len(got) != 1 {
+		t.Errorf("real zero price not flagged: %+v", got)
+	}
+}
+
+func TestInsecureFormCheck(t *testing.T) {
+	p := goodPage()
+	p.Forms = []models.Form{{Action: "http://ergonix.lt/subscribe", Method: "POST", Inputs: 1, HasSubmit: true, Hint: "#nl"}}
+	got := runPage(t, &InsecureFormCheck{}, p)
+	if len(got) != 1 || got[0].Severity != models.SeverityCritical {
+		t.Errorf("insecure form: %+v", got)
+	}
+}
+
+func TestSecurityHeadersCheck(t *testing.T) {
+	p := goodPage()
+	p.Headers = map[string]string{"Server": "nginx/1.18.0"} // no HSTS/CSP/XCTO + version
+	got := (&SecurityHeadersCheck{}).CheckSite(sc(p))
+	if len(got) != 2 {
+		t.Fatalf("issues = %d: %+v", len(got), got)
+	}
+	if !strings.Contains(got[0].Description, "Strict-Transport-Security") {
+		t.Errorf("missing headers issue: %s", got[0].Description)
+	}
+	if !strings.Contains(got[1].Title, "version disclosure") {
+		t.Errorf("disclosure issue: %s", got[1].Title)
+	}
+
+	p.Headers = map[string]string{
+		"Strict-Transport-Security": "max-age=31536000",
+		"Content-Security-Policy":   "default-src 'self'",
+		"X-Content-Type-Options":    "nosniff",
+		"Server":                    "cloudflare",
+	}
+	if got := (&SecurityHeadersCheck{}).CheckSite(sc(p)); len(got) != 0 {
+		t.Errorf("hardened site should be silent: %+v", got)
+	}
+}
+
+func TestWrongLanguageCheck(t *testing.T) {
+	base := "Shop the best chairs for your office. The price includes shipping and all our products " +
+		"come with a warranty. Add the chair to your cart and pay with the method of your choice. "
+	p := goodPage()
+	p.VisibleText = strings.Repeat(base, 3) // clearly English on a .lt store
+	got := runPage(t, &WrongLanguageCheck{}, p)
+	if len(got) != 1 || got[0].Category != models.CategoryTranslation {
+		t.Fatalf("english on .lt: %+v", got)
+	}
+	if got[0].Details["detected"] != "en" {
+		t.Errorf("detected = %v", got[0].Details["detected"])
+	}
+
+	lt := "Ergonominė kėdė yra puikus pasirinkimas jūsų biurui, nes kaina apima pristatymą ir visos mūsų prekės turi garantiją. Įdėkite prekę į krepšelį ir apie viską pasirūpinsime, kaip ir visada, daugiau informacijos rasite čia. "
+	p = goodPage()
+	p.VisibleText = strings.Repeat(lt, 3)
+	if got := runPage(t, &WrongLanguageCheck{}, p); len(got) != 0 {
+		t.Errorf("lithuanian on .lt flagged: %+v", got)
 	}
 }
 

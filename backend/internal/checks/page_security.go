@@ -28,6 +28,88 @@ func (MixedContentCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issu
 		"Serve all images, scripts and stylesheets over https://.")}
 }
 
+// InsecureFormCheck flags forms on HTTPS pages that submit to plain http://
+// — credentials/personal data would leave the page unencrypted.
+type InsecureFormCheck struct{}
+
+func (InsecureFormCheck) Name() string { return "insecure-form" }
+
+func (InsecureFormCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue {
+	if !strings.HasPrefix(strings.ToLower(p.FinalURL), "https://") {
+		return nil
+	}
+	var issues []models.Issue
+	for _, f := range p.Forms {
+		if strings.HasPrefix(strings.ToLower(f.Action), "http://") {
+			issues = append(issues, issue(p, models.CategorySecurity, models.SeverityCritical,
+				"Form submits over insecure HTTP",
+				fmt.Sprintf("Form %s posts to %s — data entered by the customer would be sent unencrypted.", f.Hint, f.Action),
+				"Change the form action to https://."))
+		}
+	}
+	return issues
+}
+
+// SecurityHeadersCheck (site-level) inspects the response headers of the
+// crawled pages: missing hardening headers and version disclosure.
+type SecurityHeadersCheck struct{}
+
+func (SecurityHeadersCheck) Name() string { return "security-headers" }
+
+func (SecurityHeadersCheck) CheckSite(sc *SiteContext) []models.Issue {
+	// Use the first successfully fetched HTML page (headers are set by the
+	// platform, so one sample represents the site).
+	var sample *models.Page
+	for _, p := range sc.Pages {
+		if p.OK() && p.IsHTML() && p.Headers != nil {
+			sample = p
+			break
+		}
+	}
+	if sample == nil {
+		return nil
+	}
+	var issues []models.Issue
+
+	var missing []string
+	if strings.HasPrefix(strings.ToLower(sample.FinalURL), "https://") &&
+		sample.Headers["Strict-Transport-Security"] == "" {
+		missing = append(missing, "Strict-Transport-Security (HSTS)")
+	}
+	if sample.Headers["Content-Security-Policy"] == "" {
+		missing = append(missing, "Content-Security-Policy")
+	}
+	if sample.Headers["X-Content-Type-Options"] == "" {
+		missing = append(missing, "X-Content-Type-Options: nosniff")
+	}
+	if len(missing) > 0 {
+		issues = append(issues, models.Issue{
+			PageURL:  sample.URL,
+			Category: models.CategorySecurity,
+			Severity: models.SeverityMedium,
+			Title:    "Missing security headers",
+			Description: fmt.Sprintf("Responses lack: %s. These headers protect customers against protocol downgrade, XSS and MIME-sniffing attacks.",
+				strings.Join(missing, "; ")),
+			SuggestedFix: "Configure the missing security headers at the platform/CDN level.",
+			Details:      map[string]any{"missing": missing},
+		})
+	}
+
+	for _, h := range []string{"Server", "X-Powered-By"} {
+		if v := sample.Headers[h]; v != "" && strings.ContainsAny(v, "0123456789") {
+			issues = append(issues, models.Issue{
+				PageURL:  sample.URL,
+				Category: models.CategorySecurity,
+				Severity: models.SeverityLow,
+				Title:    "Server version disclosure",
+				Description: fmt.Sprintf("The %s header exposes software/version details (%q), helping attackers pick known exploits.", h, v),
+				SuggestedFix: "Strip or genericize the " + h + " header.",
+			})
+		}
+	}
+	return issues
+}
+
 // HTTPLinkCheck flags plain-http anchor links on https pages (navigation,
 // not assets — assets are MixedContentCheck's job).
 type HTTPLinkCheck struct{}
