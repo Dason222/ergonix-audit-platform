@@ -41,6 +41,11 @@ function IssueDetails({ issue }: { issue: Issue }) {
   const affectedPages = Array.isArray(details.pages)
     ? (details.pages as unknown[]).filter((p): p is string => typeof p === "string")
     : [];
+  const elements = Array.isArray(details.elements)
+    ? (details.elements as unknown[]).filter((e): e is string => typeof e === "string")
+    : typeof details.element === "string"
+      ? [details.element]
+      : [];
 
   return (
     <div className="grid gap-3 rounded-md border border-line bg-panel p-4 text-[12.5px] md:grid-cols-2">
@@ -60,6 +65,22 @@ function IssueDetails({ issue }: { issue: Issue }) {
               {affectedPages.map((p) => (
                 <li key={p}>
                   <UrlLink href={p} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {elements.length > 0 && (
+          <>
+            <div className="microlabel mb-1 mt-3">
+              Affected elements (find via DevTools / view-source)
+            </div>
+            <ul className="space-y-0.5">
+              {elements.map((e, i) => (
+                <li key={i}>
+                  <code className="break-all rounded bg-surface px-1.5 py-0.5 font-mono text-[11px] text-ink-700">
+                    {e}
+                  </code>
                 </li>
               ))}
             </ul>

@@ -22,19 +22,23 @@ type Link struct {
 	Nofollow bool   `json:"nofollow,omitempty"`
 }
 
-// Form is one <form> found on a page.
+// Form is one <form> found on a page. Hint identifies the element in the
+// page source (id/class/input names) so a reader can find it.
 type Form struct {
 	Action    string `json:"action"`
 	Method    string `json:"method"`
 	Inputs    int    `json:"inputs"`
 	HasSubmit bool   `json:"hasSubmit"`
+	Hint      string `json:"hint,omitempty"`
 }
 
 // Button is one <button> (or input[type=button|submit]) found on a page.
+// Hint identifies the element in the page source (id/class/aria-label).
 type Button struct {
 	Text      string `json:"text"`
 	Type      string `json:"type"`
 	HasAction bool   `json:"hasAction"`
+	Hint      string `json:"hint,omitempty"`
 }
 
 // Resource is an external script or stylesheet reference.

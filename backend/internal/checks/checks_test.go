@@ -176,9 +176,16 @@ func TestHardcodedCountryLink(t *testing.T) {
 
 func TestUIChecks(t *testing.T) {
 	p := goodPage()
-	p.Buttons = []models.Button{{Text: "", Type: "button", HasAction: false}}
-	if got := runPage(t, &EmptyButtonCheck{}, p); len(got) != 1 {
-		t.Errorf("empty button: %+v", got)
+	p.Buttons = []models.Button{{Text: "", Type: "button", HasAction: false, Hint: "#cart-toggle .icon-btn"}}
+	got := runPage(t, &EmptyButtonCheck{}, p)
+	if len(got) != 1 {
+		t.Fatalf("empty button: %+v", got)
+	}
+	if !strings.Contains(got[0].Description, "#cart-toggle") {
+		t.Errorf("empty-button issue should name the element: %s", got[0].Description)
+	}
+	if els, ok := got[0].Details["elements"].([]string); !ok || len(els) != 1 {
+		t.Errorf("empty-button details missing elements: %+v", got[0].Details)
 	}
 	if got := runPage(t, &ButtonActionCheck{}, p); len(got) != 1 {
 		t.Errorf("button without action: %+v", got)
@@ -321,6 +328,9 @@ func TestBrokenLinkExternal403LowConfidence(t *testing.T) {
 	}
 	if got[0].Confidence != 0.5 {
 		t.Errorf("external 403 confidence = %v, want 0.5 (bot protection is likely)", got[0].Confidence)
+	}
+	if got[0].Severity != models.SeverityLow {
+		t.Errorf("external 403 severity = %s, want low", got[0].Severity)
 	}
 	if !strings.Contains(got[0].Description, "bot protection") {
 		t.Errorf("description should mention bot protection: %s", got[0].Description)

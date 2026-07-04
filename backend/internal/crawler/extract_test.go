@@ -37,6 +37,7 @@ const fixtureHTML = `<!DOCTYPE html>
     <input type="email" name="email">
   </form>
   <button type="button"></button>
+  <button class="slider__next icon-only"></button>
   <button onclick="addToCart()">Į krepšelį</button>
   <p>Kaina: 129,99 € su PVM. Sena kaina 1 299,00 €.</p>
   <script src="/assets/app.js"></script>
@@ -118,25 +119,34 @@ func TestExtractFormsAndButtons(t *testing.T) {
 	if !p.Forms[0].HasSubmit || p.Forms[0].Method != "GET" {
 		t.Errorf("form0: %+v", p.Forms[0])
 	}
+	if !strings.Contains(p.Forms[0].Hint, "inputs[q]") {
+		t.Errorf("form0 hint should name its inputs: %q", p.Forms[0].Hint)
+	}
 	if p.Forms[1].HasSubmit {
 		t.Errorf("form1 has no submit: %+v", p.Forms[1])
 	}
 
-	// button[type=submit], empty button[type=button], onclick button
-	if len(p.Buttons) != 3 {
+	// submit button, plain empty button, classed empty button, onclick button
+	if len(p.Buttons) != 4 {
 		t.Fatalf("buttons = %d: %+v", len(p.Buttons), p.Buttons)
 	}
-	var empty, onclick *models.Button
+	var plainEmpty, classedEmpty, onclick *models.Button
 	for i := range p.Buttons {
-		switch p.Buttons[i].Text {
-		case "":
-			empty = &p.Buttons[i]
-		case "Į krepšelį":
-			onclick = &p.Buttons[i]
+		b := &p.Buttons[i]
+		switch {
+		case b.Text == "" && b.Hint == "":
+			plainEmpty = b
+		case b.Text == "" && b.Hint != "":
+			classedEmpty = b
+		case b.Text == "Į krepšelį":
+			onclick = b
 		}
 	}
-	if empty == nil || empty.HasAction {
-		t.Errorf("empty type=button with no hooks should have no action: %+v", empty)
+	if plainEmpty == nil || plainEmpty.HasAction {
+		t.Errorf("empty type=button with no hooks should have no action: %+v", plainEmpty)
+	}
+	if classedEmpty == nil || classedEmpty.Hint != ".slider__next.icon-only" {
+		t.Errorf("classed button hint = %+v", classedEmpty)
 	}
 	if onclick == nil || !onclick.HasAction {
 		t.Errorf("onclick button should have action: %+v", onclick)

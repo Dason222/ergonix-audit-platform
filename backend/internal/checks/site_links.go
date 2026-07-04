@@ -67,8 +67,9 @@ func (BrokenLinkCheck) CheckSite(sc *SiteContext) []models.Issue {
 		confidence := 0.0 // engine default (1.0)
 		// External sites often answer automated probes with 403 (bot
 		// protection, e.g. Trustpilot) while working fine in a browser —
-		// report it, but honestly, at reduced confidence.
+		// report it, but honestly: low severity, reduced confidence.
 		if !r.internal && res.StatusCode == http.StatusForbidden {
+			sev = models.SeverityLow
 			confidence = 0.5
 			desc += " The target may simply be blocking automated checks (bot protection)."
 			fix = "Open the link in a normal browser to verify; fix or remove it only if it is genuinely dead."

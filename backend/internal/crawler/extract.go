@@ -81,11 +81,22 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 				return true
 			})
 		}
+		hint := elementHint(s)
+		var inputNames []string
+		s.Find("input[name], select[name], textarea[name]").Each(func(_ int, in *goquery.Selection) {
+			if n, _ := in.Attr("name"); n != "" && len(inputNames) < 3 {
+				inputNames = append(inputNames, n)
+			}
+		})
+		if len(inputNames) > 0 {
+			hint = strings.TrimSpace(hint + " inputs[" + strings.Join(inputNames, ",") + "]")
+		}
 		p.Forms = append(p.Forms, models.Form{
 			Action:    resolveRef(pageURL, action),
 			Method:    strings.ToUpper(strings.TrimSpace(orDefault(method, "GET"))),
 			Inputs:    s.Find("input, select, textarea").Length(),
 			HasSubmit: hasSubmit,
+			Hint:      hint,
 		})
 	})
 
@@ -104,6 +115,7 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 				Text:      text,
 				Type:      strings.ToLower(btnType),
 				HasAction: buttonHasAction(s),
+				Hint:      elementHint(s),
 			})
 		})
 
@@ -201,6 +213,34 @@ func buttonHasAction(s *goquery.Selection) bool {
 		return true
 	}
 	return false
+}
+
+// elementHint builds a short human-usable locator for an element from its
+// id, name, aria-label and first classes, e.g. `#CartDrawer .drawer__close`.
+// It lets report readers find the exact element a finding refers to.
+func elementHint(s *goquery.Selection) string {
+	var parts []string
+	if id, _ := s.Attr("id"); id != "" {
+		parts = append(parts, "#"+id)
+	}
+	if name, _ := s.Attr("name"); name != "" {
+		parts = append(parts, `name="`+name+`"`)
+	}
+	if al, _ := s.Attr("aria-label"); strings.TrimSpace(al) != "" {
+		parts = append(parts, `aria-label="`+collapseSpace(al)+`"`)
+	}
+	if cls, _ := s.Attr("class"); cls != "" {
+		fields := strings.Fields(cls)
+		if len(fields) > 2 {
+			fields = fields[:2]
+		}
+		parts = append(parts, "."+strings.Join(fields, "."))
+	}
+	hint := strings.Join(parts, " ")
+	if len(hint) > 90 {
+		hint = hint[:90] + "…"
+	}
+	return hint
 }
 
 func resolveRef(base *url.URL, ref string) string {
