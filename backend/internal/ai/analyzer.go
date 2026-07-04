@@ -14,10 +14,12 @@ import (
 	"github.com/ergonix/auditor/backend/internal/models"
 )
 
-// Config tunes the analyzer.
+// Config tunes the analyzer. Model is recorded on every finding for
+// provenance (which model judged the content).
 type Config struct {
 	MaxPagesPerSite int
 	MaxTextChars    int
+	Model           string
 }
 
 // Analyzer runs LLM content analysis over a site's crawled pages.
@@ -101,5 +103,11 @@ func (a *Analyzer) analyzePage(ctx context.Context, system, website string, p *m
 	if err != nil {
 		return nil, err
 	}
-	return ParseFindings(raw, website, p.URL)
+	issues, err := ParseFindings(raw, website, p.URL)
+	if a.cfg.Model != "" {
+		for i := range issues {
+			issues[i].Details["model"] = a.cfg.Model
+		}
+	}
+	return issues, err
 }

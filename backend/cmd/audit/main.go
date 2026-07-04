@@ -174,6 +174,7 @@ func buildRunner(cfg *config.Config, log *slog.Logger) *audit.Runner {
 		analyzer = ai.New(client, ai.Config{
 			MaxPagesPerSite: cfg.AIMaxPages,
 			MaxTextChars:    cfg.AIMaxTextChars,
+			Model:           cfg.AIModel,
 		}, log)
 		log.Info("AI analysis enabled", "model", cfg.AIModel)
 	} else {
@@ -221,8 +222,14 @@ func printReport(fa *report.FullAudit, quiet bool) {
 		limit = 50
 	}
 	for _, is := range issues[:limit] {
+		producer := is.CheckID
+		if producer == "" {
+			producer = string(is.Source)
+		} else if is.Source == models.SourceRule {
+			producer = "rule:" + producer
+		}
 		fmt.Printf("\n[%s] %s · %s · %s\n", strings.ToUpper(string(is.Severity)),
-			is.Category, is.Source, is.PageURL)
+			is.Category, producer, is.PageURL)
 		fmt.Printf("  %s\n", is.Title)
 		if is.Description != "" && is.Description != is.Title {
 			fmt.Printf("  %s\n", is.Description)

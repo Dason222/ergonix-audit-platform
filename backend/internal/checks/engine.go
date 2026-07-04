@@ -90,11 +90,19 @@ func (e *Engine) Run(ctx context.Context, sc *SiteContext) []models.Issue {
 	var issues []models.Issue
 	for _, p := range sc.Pages {
 		for _, chk := range e.pageChecks {
-			issues = append(issues, e.safeRunPage(chk, sc, p)...)
+			out := e.safeRunPage(chk, sc, p)
+			for i := range out {
+				out[i].CheckID = chk.Name()
+			}
+			issues = append(issues, out...)
 		}
 	}
 	for _, chk := range e.siteChecks {
-		issues = append(issues, e.safeRunSite(chk, sc)...)
+		out := e.safeRunSite(chk, sc)
+		for i := range out {
+			out[i].CheckID = chk.Name()
+		}
+		issues = append(issues, out...)
 	}
 
 	now := time.Now()

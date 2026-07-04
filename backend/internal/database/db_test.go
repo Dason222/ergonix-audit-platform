@@ -94,7 +94,8 @@ func TestIssueFilteringAndPages(t *testing.T) {
 
 	issues := []models.Issue{
 		{AuditID: a.ID, Website: "ergonix.lt", PageURL: "https://ergonix.lt/", Category: models.CategorySEO,
-			Source: models.SourceRule, Severity: models.SeverityHigh, Title: "Missing title", Confidence: 1, CreatedAt: time.Now()},
+			Source: models.SourceRule, CheckID: "missing-title", Severity: models.SeverityHigh,
+			Title: "Missing title", Confidence: 1, CreatedAt: time.Now()},
 		{AuditID: a.ID, Website: "ergonix.lv", PageURL: "https://ergonix.lv/x", Category: models.CategoryNetwork,
 			Source: models.SourceRule, Severity: models.SeverityCritical, Title: "404 page", Confidence: 1, CreatedAt: time.Now()},
 		{AuditID: a.ID, Website: "ergonix.lt", PageURL: "https://ergonix.lt/", Category: models.CategoryTranslation,
@@ -111,6 +112,11 @@ func TestIssueFilteringAndPages(t *testing.T) {
 	}
 	if all[0].Severity != models.SeverityCritical {
 		t.Errorf("expected severity ordering, got first=%s", all[0].Severity)
+	}
+	for _, is := range all {
+		if is.Title == "Missing title" && is.CheckID != "missing-title" {
+			t.Errorf("checkId not persisted: %+v", is)
+		}
 	}
 
 	bySource, total, _ := db.ListIssues(IssueFilter{AuditID: a.ID, Source: "ai"})

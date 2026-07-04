@@ -76,6 +76,7 @@ func main() {
 		analyzer = ai.New(client, ai.Config{
 			MaxPagesPerSite: cfg.AIMaxPages,
 			MaxTextChars:    cfg.AIMaxTextChars,
+			Model:           cfg.AIModel,
 		}, log)
 		log.Info("AI analysis enabled", "model", cfg.AIModel, "baseURL", cfg.AIBaseURL)
 	} else {

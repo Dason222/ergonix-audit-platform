@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { api } from "../api/client";
@@ -6,8 +6,8 @@ import { CategoryBars, SeverityDonut, WebsiteBars } from "../charts";
 import IssuesTable from "../components/IssuesTable";
 import { StatusBadge } from "../components/badges";
 import { ErrorNote, Panel, Spinner, StatCard } from "../components/panels";
-import { useAudit, useCancelAudit, useIssues } from "../hooks/useApi";
-import type { Audit, AuditSite } from "../types/api";
+import { useAudit, useCancelAudit, useIssues, usePages } from "../hooks/useApi";
+import type { Audit, AuditSite, Page } from "../types/api";
 import { fmtDateTime, fmtDuration, hostOf } from "../utils/format";
 
 const STAGES = [
@@ -205,6 +205,15 @@ function ResultView({ audit }: { audit: Audit }) {
     source: source || undefined,
     search: search || undefined,
   });
+  // Crawl inventory, used to show provenance (scrape metadata) per issue.
+  const { data: pagesData } = usePages(audit.id);
+  const pageByUrl = useMemo(() => {
+    const map = new Map<string, Page>();
+    for (const p of pagesData?.pages ?? []) {
+      map.set(p.url, p);
+    }
+    return map;
+  }, [pagesData]);
 
   const issues = issuesData?.issues ?? [];
   const stats = audit.stats;
@@ -295,7 +304,7 @@ function ResultView({ audit }: { audit: Audit }) {
           </div>
         }
       >
-        <IssuesTable issues={issues} />
+        <IssuesTable issues={issues} pageByUrl={pageByUrl} />
       </Panel>
     </div>
   );

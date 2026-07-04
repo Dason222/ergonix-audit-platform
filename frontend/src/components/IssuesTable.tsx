@@ -9,8 +9,8 @@ import {
 } from "@tanstack/react-table";
 import { Fragment, useMemo, useState } from "react";
 
-import type { Issue, Severity } from "../types/api";
-import { hostOf, pathOf } from "../utils/format";
+import type { Issue, Page, Severity } from "../types/api";
+import { fmtDateTime, hostOf, pathOf } from "../utils/format";
 import { ConfidenceMeter, SeverityBadge, SourceBadge } from "./badges";
 
 const SEV_ORDER: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -34,8 +34,9 @@ function UrlLink({ href, tone = "signal" }: { href: string; tone?: "signal" | "c
 
 // IssueDetails renders the expanded row: full text plus every URL buried in
 // the issue's details (broken-link target, duplicate-content page list) as
-// clickable links.
-function IssueDetails({ issue }: { issue: Issue }) {
+// clickable links, and the provenance trail (which check produced the issue,
+// from which scraped page).
+function IssueDetails({ issue, page }: { issue: Issue; page?: Page }) {
   const details = issue.details ?? {};
   const target = typeof details.target === "string" ? details.target : null;
   const affectedPages = Array.isArray(details.pages)
@@ -92,14 +93,62 @@ function IssueDetails({ issue }: { issue: Issue }) {
         <p className="leading-relaxed text-ink-700">{issue.suggestedFix || "—"}</p>
         <div className="microlabel mb-1 mt-3">Found on page</div>
         <UrlLink href={issue.pageUrl} />
+        <Provenance issue={issue} page={page} />
       </div>
+    </div>
+  );
+}
+
+// Provenance explains where the finding came from: the check (or AI type +
+// model) that produced it, and the crawl that supplied the data.
+function Provenance({ issue, page }: { issue: Issue; page?: Page }) {
+  const model =
+    typeof issue.details?.model === "string" ? (issue.details.model as string) : null;
+  const producer =
+    issue.source === "ai"
+      ? `AI analysis${issue.checkId ? ` · ${issue.checkId}` : ""}${model ? ` · model ${model}` : ""}`
+      : `rule check${issue.checkId ? ` · ${issue.checkId}` : ""}`;
+
+  return (
+    <div className="mt-3 rounded-md border border-line bg-surface px-3 py-2">
+      <div className="microlabel mb-1.5">Where this finding came from</div>
+      <dl className="grid grid-cols-[92px_1fr] gap-y-1 font-mono text-[11px] text-ink-700">
+        <dt className="text-ink-400">detected by</dt>
+        <dd>{producer}</dd>
+        {page ? (
+          <>
+            <dt className="text-ink-400">scraped from</dt>
+            <dd className="break-all">
+              {page.finalUrl && page.finalUrl !== page.url
+                ? `${page.url} → ${page.finalUrl}`
+                : page.url}
+            </dd>
+            <dt className="text-ink-400">crawl data</dt>
+            <dd>
+              HTTP {page.statusCode || "—"} · depth {page.depth} ·{" "}
+              {page.responseTimeMs} ms · {fmtDateTime(page.crawledAt)}
+            </dd>
+          </>
+        ) : (
+          <>
+            <dt className="text-ink-400">scraped from</dt>
+            <dd className="break-all">{issue.pageUrl}</dd>
+          </>
+        )}
+      </dl>
     </div>
   );
 }
 
 const col = createColumnHelper<Issue>();
 
-export default function IssuesTable({ issues }: { issues: Issue[] }) {
+export default function IssuesTable({
+  issues,
+  pageByUrl,
+}: {
+  issues: Issue[];
+  pageByUrl?: Map<string, Page>;
+}) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "severity", desc: false }]);
   const [expanded, setExpanded] = useState<number | null>(null);
 
@@ -126,8 +175,18 @@ export default function IssuesTable({ issues }: { issues: Issue[] }) {
       }),
       col.accessor("source", {
         header: "Source",
-        cell: (info) => <SourceBadge source={info.getValue()} />,
-        size: 70,
+        cell: (info) => (
+          <div>
+            <SourceBadge source={info.getValue()} />
+            {info.row.original.checkId && (
+              <div className="mt-0.5 max-w-[90px] truncate font-mono text-[9.5px] text-ink-400"
+                   title={info.row.original.checkId}>
+                {info.row.original.checkId}
+              </div>
+            )}
+          </div>
+        ),
+        size: 100,
       }),
       col.accessor("pageUrl", {
         header: "Page",
@@ -236,7 +295,10 @@ export default function IssuesTable({ issues }: { issues: Issue[] }) {
                 {expanded === row.original.id && (
                   <tr className="border-b border-line/60 bg-surface">
                     <td colSpan={columns.length} className="px-5 pb-4 pt-1">
-                      <IssueDetails issue={row.original} />
+                      <IssueDetails
+                        issue={row.original}
+                        page={pageByUrl?.get(row.original.pageUrl)}
+                      />
                     </td>
                   </tr>
                 )}

@@ -74,17 +74,19 @@ func ParseFindings(raw, website, pageURL string) ([]models.Issue, error) {
 		if conf <= 0 || conf > 1 {
 			conf = 0.5
 		}
+		aiType := strings.ToLower(strings.TrimSpace(f.Type))
 		out = append(out, models.Issue{
 			Website:      website,
 			PageURL:      pageURL,
 			Category:     cat,
 			Source:       models.SourceAI,
+			CheckID:      "ai:" + aiType,
 			Severity:     sev,
 			Title:        strings.TrimSpace(f.Title),
 			Description:  strings.TrimSpace(f.Description),
 			SuggestedFix: strings.TrimSpace(f.SuggestedFix),
 			Confidence:   conf,
-			Details:      map[string]any{"aiType": strings.ToLower(strings.TrimSpace(f.Type))},
+			Details:      map[string]any{"aiType": aiType},
 		})
 	}
 	return out, nil

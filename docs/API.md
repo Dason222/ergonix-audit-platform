@@ -78,14 +78,17 @@ Query parameters (all optional, combinable):
 | `search`   | substring over title/description/URL/fix   |
 | `limit`, `offset` | pagination (omit for all)           |
 
-Returns `{"issues": [Issue…], "total": n}` ordered most-severe first. Issue shape:
+Returns `{"issues": [Issue…], "total": n}` ordered most-severe first.
+`checkId` names the producer for provenance: a rule check id (`broken-links`,
+`empty-button`, …) or `ai:<type>` for AI findings (`ai:wrong_language`), with
+the judging model recorded in `details.model`. Issue shape:
 
 ```json
 {
   "id": 3, "auditId": 1,
   "website": "https://ergonix.lt",
   "pageUrl": "https://ergonix.lt/",
-  "category": "Network", "source": "rule", "severity": "high",
+  "category": "Network", "source": "rule", "checkId": "broken-links", "severity": "high",
   "title": "Broken internal link",
   "description": "Link \"Ergonomics explained\" → https://ergonix.lt/blogs/ergonomics is broken (HTTP 404); referenced from https://ergonix.lt/.",
   "suggestedFix": "Fix the target URL, restore the destination page, or remove the link.",

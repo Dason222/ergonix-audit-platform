@@ -28,6 +28,9 @@ func TestParseFindingsHappyPath(t *testing.T) {
 	if issues[0].Category != models.CategoryTranslation || issues[0].Source != models.SourceAI {
 		t.Errorf("issue0: %+v", issues[0])
 	}
+	if issues[0].CheckID != "ai:wrong_language" {
+		t.Errorf("issue0 checkId = %q, want ai:wrong_language", issues[0].CheckID)
+	}
 	if issues[1].Category != models.CategoryLogic || issues[1].Severity != models.SeverityCritical {
 		t.Errorf("issue1: %+v", issues[1])
 	}

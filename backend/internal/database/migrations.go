@@ -1,6 +1,9 @@
 package database
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // migrate applies the schema. Statements are idempotent so this can run on
 // every startup; ALTER-style migrations get appended to the list with guards.
@@ -58,6 +61,23 @@ func (d *DB) migrate() error {
 		if _, err := d.sql.Exec(s); err != nil {
 			return fmt.Errorf("migrate: %w", err)
 		}
+	}
+
+	// Column additions for databases created by earlier versions.
+	if err := d.addColumn("issues", "check_id", "TEXT NOT NULL DEFAULT ''"); err != nil {
+		return err
+	}
+	return nil
+}
+
+// addColumn adds a column if it does not exist yet (idempotent migration).
+func (d *DB) addColumn(table, column, ddl string) error {
+	_, err := d.sql.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", table, column, ddl))
+	if err != nil && strings.Contains(err.Error(), "duplicate column") {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("migrate %s.%s: %w", table, column, err)
 	}
 	return nil
 }

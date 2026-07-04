@@ -32,9 +32,9 @@ func (d *DB) SaveIssues(issues []models.Issue) error {
 	defer tx.Rollback()
 
 	stmt, err := tx.Prepare(
-		`INSERT INTO issues (audit_id, website, page_url, category, source, severity,
+		`INSERT INTO issues (audit_id, website, page_url, category, source, check_id, severity,
 		                     title, description, suggested_fix, confidence, screenshot, details, created_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (d *DB) SaveIssues(issues []models.Issue) error {
 			details = string(b)
 		}
 		res, err := stmt.Exec(is.AuditID, is.Website, is.PageURL, string(is.Category),
-			string(is.Source), string(is.Severity), is.Title, is.Description,
+			string(is.Source), is.CheckID, string(is.Severity), is.Title, is.Description,
 			is.SuggestedFix, is.Confidence, is.Screenshot, details, fmtTime(is.CreatedAt))
 		if err != nil {
 			return fmt.Errorf("insert issue %q: %w", is.Title, err)
@@ -71,7 +71,7 @@ func (d *DB) ListIssues(f IssueFilter) ([]models.Issue, int, error) {
 		return nil, 0, err
 	}
 
-	q := `SELECT id, audit_id, website, page_url, category, source, severity,
+	q := `SELECT id, audit_id, website, page_url, category, source, check_id, severity,
 	             title, description, suggested_fix, confidence, screenshot, details, created_at
 	      FROM issues ` + where + `
 	      ORDER BY CASE severity
@@ -94,7 +94,7 @@ func (d *DB) ListIssues(f IssueFilter) ([]models.Issue, int, error) {
 			details, createdAt              string
 		)
 		if err := rows.Scan(&is.ID, &is.AuditID, &is.Website, &is.PageURL, &category,
-			&source, &severity, &is.Title, &is.Description, &is.SuggestedFix,
+			&source, &is.CheckID, &severity, &is.Title, &is.Description, &is.SuggestedFix,
 			&is.Confidence, &is.Screenshot, &details, &createdAt); err != nil {
 			return nil, 0, err
 		}

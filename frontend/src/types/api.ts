@@ -71,6 +71,7 @@ export interface Issue {
   pageUrl: string;
   category: Category;
   source: Source;
+  checkId?: string;
   severity: Severity;
   title: string;
   description: string;

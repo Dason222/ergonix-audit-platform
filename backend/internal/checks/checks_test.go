@@ -349,6 +349,9 @@ func TestEngineRunSetsMetadata(t *testing.T) {
 		if is.Website != "https://ergonix.lt" || is.Source != models.SourceRule || is.Confidence == 0 {
 			t.Errorf("metadata not filled: %+v", is)
 		}
+		if is.CheckID == "" {
+			t.Errorf("issue %q missing CheckID (provenance)", is.Title)
+		}
 	}
 }
 

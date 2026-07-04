@@ -19,7 +19,7 @@ func (CSVExporter) Export(w io.Writer, fa *FullAudit) error {
 	}
 	cw := csv.NewWriter(w)
 	if err := cw.Write([]string{
-		"ID", "Website", "Page URL", "Category", "Source", "Severity",
+		"ID", "Website", "Page URL", "Category", "Source", "Check", "Severity",
 		"Title", "Description", "Suggested Fix", "Confidence",
 	}); err != nil {
 		return err
@@ -27,7 +27,7 @@ func (CSVExporter) Export(w io.Writer, fa *FullAudit) error {
 	for _, is := range fa.Issues {
 		if err := cw.Write([]string{
 			fmt.Sprint(is.ID), is.Website, is.PageURL, string(is.Category),
-			string(is.Source), string(is.Severity), is.Title, is.Description,
+			string(is.Source), is.CheckID, string(is.Severity), is.Title, is.Description,
 			is.SuggestedFix, fmt.Sprintf("%.2f", is.Confidence),
 		}); err != nil {
 			return err

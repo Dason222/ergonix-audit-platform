@@ -107,7 +107,7 @@ var htmlTmpl = template.Must(template.New("report").Funcs(template.FuncMap{
     <td><span class="sev {{.Severity}}">{{.Severity}}</span></td>
     <td>{{.Website}}</td>
     <td>{{.Category}}</td>
-    <td>{{.Source}}</td>
+    <td>{{.Source}}{{if .CheckID}}<br><span class="muted" style="font-size:10px">{{.CheckID}}</span>{{end}}</td>
     <td class="url">{{.PageURL}}</td>
     <td><b>{{.Title}}</b><br>{{.Description}}</td>
     <td>{{.SuggestedFix}}</td>

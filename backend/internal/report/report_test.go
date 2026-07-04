@@ -30,11 +30,11 @@ func sampleAudit() *FullAudit {
 		},
 		Issues: []models.Issue{
 			{ID: 1, AuditID: 7, Website: "https://ergonix.lt", PageURL: "https://ergonix.lt/x",
-				Category: models.CategoryNetwork, Source: models.SourceRule,
+				Category: models.CategoryNetwork, Source: models.SourceRule, CheckID: "status-code",
 				Severity: models.SeverityCritical, Title: "Server error (500)",
 				Description: "Boom", SuggestedFix: "Fix it", Confidence: 1},
 			{ID: 2, AuditID: 7, Website: "https://ergonix.lt", PageURL: "https://ergonix.lt/y",
-				Category: models.CategoryTranslation, Source: models.SourceAI,
+				Category: models.CategoryTranslation, Source: models.SourceAI, CheckID: "ai:mixed_language",
 				Severity: models.SeverityMedium, Title: "Mišri kalba \"citata\"",
 				Description: "Aprašymas lietuviškai, mygtukai angliškai",
 				SuggestedFix: "Išversti mygtukus", Confidence: 0.85},
@@ -73,8 +73,14 @@ func TestCSVExport(t *testing.T) {
 	if len(rows) != 3 { // header + 2 issues
 		t.Fatalf("rows = %d", len(rows))
 	}
-	if rows[2][6] != "Mišri kalba \"citata\"" {
-		t.Errorf("unicode/quote handling: %q", rows[2][6])
+	if rows[0][5] != "Check" {
+		t.Errorf("header missing Check column: %v", rows[0])
+	}
+	if rows[2][5] != "ai:mixed_language" {
+		t.Errorf("check id column: %q", rows[2][5])
+	}
+	if rows[2][7] != "Mišri kalba \"citata\"" {
+		t.Errorf("unicode/quote handling: %q", rows[2][7])
 	}
 }
 
