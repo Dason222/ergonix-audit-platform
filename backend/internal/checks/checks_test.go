@@ -21,6 +21,10 @@ func goodPage() *models.Page {
 		Language:        "lt",
 		OGProperties:    []string{"og:title", "og:image", "og:description"},
 		Hreflangs:       []string{"lt", "lv", "et", "cs", "pl"},
+		Favicons:          []string{"https://ergonix.lt/favicon.png"},
+		HasAppleTouchIcon: true,
+		HasViewport:       true,
+		HasCharset:        true,
 		H1s:             []string{"Ergonominė biuro kėdė"},
 		Images:          []models.Image{{Src: "https://ergonix.lt/img/kede.jpg", Alt: "Kėdė", HasAlt: true}},
 		Buttons:         []models.Button{{Text: "Į krepšelį", Type: "submit", HasAction: true}},
@@ -55,7 +59,7 @@ func TestGoodPageProducesNoIssues(t *testing.T) {
 		&EmptyButtonCheck{}, &ButtonActionCheck{}, &FormSubmitCheck{},
 		&ConsoleErrorCheck{}, &FailedRequestCheck{}, &LargeBundleCheck{},
 		&RedirectCheck{}, &SEOBasicsCheck{},
-		&NoindexCheck{}, &OGTagsCheck{}, &CurrencyCheck{},
+		&NoindexCheck{}, &OGTagsCheck{}, &CurrencyCheck{}, &TemplateErrorCheck{},
 	}
 	for _, chk := range checksList {
 		if got := chk.CheckPage(context, p); len(got) != 0 {
@@ -403,6 +407,108 @@ func TestHreflangCheck(t *testing.T) {
 	p1.Hreflangs = []string{"lt", "pl"}
 	if got := (&HreflangCheck{}).CheckSite(sc(p1, p2)); len(got) != 0 {
 		t.Errorf("partial hreflang should be silent: %+v", got)
+	}
+}
+
+func TestFaviconCheck(t *testing.T) {
+	// Declared favicon that loads → silent (apple-touch present too).
+	p := goodPage()
+	ctx := sc(p)
+	ctx.Links = LinkStatusMap{"https://ergonix.lt/favicon.png": {StatusCode: 200}}
+	if got := (&FaviconCheck{}).CheckSite(ctx); len(got) != 0 {
+		t.Errorf("healthy favicon should be silent: %+v", got)
+	}
+
+	// Declared favicon that 404s → broken favicon.
+	ctx.Links = LinkStatusMap{"https://ergonix.lt/favicon.png": {StatusCode: 404}}
+	got := (&FaviconCheck{}).CheckSite(ctx)
+	if len(got) != 1 || !strings.Contains(got[0].Title, "broken") {
+		t.Errorf("broken favicon: %+v", got)
+	}
+
+	// Nothing declared and /favicon.ico dead → missing favicon (+ apple hint).
+	p = goodPage()
+	p.Favicons = nil
+	p.HasAppleTouchIcon = false
+	ctx = sc(p)
+	ctx.Links = LinkStatusMap{"https://ergonix.lt/favicon.ico": {StatusCode: 404}}
+	got = (&FaviconCheck{}).CheckSite(ctx)
+	if len(got) != 2 {
+		t.Fatalf("missing favicon issues = %d: %+v", len(got), got)
+	}
+	if !strings.Contains(got[0].Title, "Missing favicon") ||
+		!strings.Contains(got[1].Title, "apple-touch-icon") {
+		t.Errorf("titles: %q / %q", got[0].Title, got[1].Title)
+	}
+
+	// Nothing declared but /favicon.ico works → only the apple hint.
+	ctx.Links = LinkStatusMap{"https://ergonix.lt/favicon.ico": {StatusCode: 200}}
+	got = (&FaviconCheck{}).CheckSite(ctx)
+	if len(got) != 1 || !strings.Contains(got[0].Title, "apple-touch-icon") {
+		t.Errorf("conventional favicon should satisfy: %+v", got)
+	}
+}
+
+func TestMobileBasicsCheck(t *testing.T) {
+	p1, p2 := goodPage(), goodPage()
+	p2.URL = "https://ergonix.lt/kitas"
+	p2.HasViewport = false
+	p2.HasCharset = false
+	got := (&MobileBasicsCheck{}).CheckSite(sc(p1, p2))
+	if len(got) != 2 {
+		t.Fatalf("issues = %d: %+v", len(got), got)
+	}
+	if got[0].Severity != models.SeverityHigh || !strings.Contains(got[0].Title, "viewport") {
+		t.Errorf("viewport issue: %+v", got[0])
+	}
+
+	if got := (&MobileBasicsCheck{}).CheckSite(sc(goodPage())); len(got) != 0 {
+		t.Errorf("healthy pages should be silent: %+v", got)
+	}
+}
+
+func TestTemplateErrorCheck(t *testing.T) {
+	// The real bug found on ergonix.lt: favicon href is a Liquid error.
+	p := goodPage()
+	p.Favicons = []string{"https://ergonix.lt/Liquid%20error%20%28layout/theme.ergonix%20line%2011%29:%20invalid%20url%20input"}
+	got := runPage(t, &TemplateErrorCheck{}, p)
+	if len(got) != 1 || got[0].Severity != models.SeverityHigh {
+		t.Fatalf("liquid error in favicon URL: %+v", got)
+	}
+	if !strings.Contains(got[0].Description, "favicon URL") {
+		t.Errorf("should name the location: %s", got[0].Description)
+	}
+
+	p = goodPage()
+	p.VisibleText = "Pristatymas per 2 d.d. translation missing: lt.products.warranty Kaina 99 €"
+	got = runPage(t, &TemplateErrorCheck{}, p)
+	if len(got) != 1 || !strings.Contains(got[0].Description, "translation missing") {
+		t.Errorf("translation missing in text: %+v", got)
+	}
+
+	if got := runPage(t, &TemplateErrorCheck{}, goodPage()); len(got) != 0 {
+		t.Errorf("clean page should be silent: %+v", got)
+	}
+}
+
+func TestFaviconTemplateError(t *testing.T) {
+	p := goodPage()
+	p.Favicons = []string{"https://ergonix.lt/Liquid%20error:%20invalid%20url%20input"}
+	got := (&FaviconCheck{}).CheckSite(sc(p))
+	var hit bool
+	for _, is := range got {
+		if strings.Contains(is.Title, "template error") {
+			hit = true
+		}
+	}
+	if !hit {
+		t.Errorf("favicon template error not flagged: %+v", got)
+	}
+}
+
+func TestFaviconFallbackURL(t *testing.T) {
+	if got := FaviconFallbackURL("https://ergonix.lt"); got != "https://ergonix.lt/favicon.ico" {
+		t.Errorf("fallback = %q", got)
 	}
 }
 

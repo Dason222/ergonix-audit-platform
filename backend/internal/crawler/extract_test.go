@@ -15,10 +15,14 @@ const fixtureHTML = `<!DOCTYPE html>
   <title>Ergonominė kėdė | Ergonix</title>
   <meta name="description" content="Geriausia ergonominė kėdė namams ir biurui.">
   <link rel="canonical" href="https://ergonix.lt/products/kede">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow">
   <link rel="alternate" hreflang="lt" href="https://ergonix.lt/products/kede">
   <link rel="alternate" hreflang="pl" href="https://ergonix.pl/products/kede">
   <meta property="og:title" content="Kėdė">
+  <link rel="icon" type="image/png" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/main.css">
   <style>.x{color:red}</style>
 </head>
@@ -86,6 +90,13 @@ func TestExtractBasics(t *testing.T) {
 	}
 	if len(p.OGProperties) != 1 || p.OGProperties[0] != "og:title" {
 		t.Errorf("ogProperties = %v", p.OGProperties)
+	}
+	if len(p.Favicons) != 2 || p.Favicons[0] != "https://ergonix.lt/favicon-32.png" {
+		t.Errorf("favicons = %v", p.Favicons)
+	}
+	if !p.HasAppleTouchIcon || !p.HasViewport || !p.HasCharset {
+		t.Errorf("head basics: apple=%v viewport=%v charset=%v",
+			p.HasAppleTouchIcon, p.HasViewport, p.HasCharset)
 	}
 }
 

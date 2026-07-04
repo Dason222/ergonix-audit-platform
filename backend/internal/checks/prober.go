@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 )
@@ -81,8 +82,32 @@ func (lp *LinkProber) ProbeSite(ctx context.Context, sc *SiteContext) LinkStatus
 		external = external[:lp.cfg.MaxExternalProbes]
 	}
 
-	lp.probe(ctx, append(internal, external...), results)
+	// Favicon URLs (declared icons + the /favicon.ico convention) are
+	// probed too, so the favicon check can verify they actually load.
+	var icons []string
+	for _, p := range sc.Pages {
+		for _, f := range p.Favicons {
+			if f != "" && !seen[f] && len(icons) < 10 {
+				seen[f] = true
+				icons = append(icons, f)
+			}
+		}
+	}
+	if fb := FaviconFallbackURL(sc.Website); fb != "" && !seen[fb] {
+		icons = append(icons, fb)
+	}
+
+	lp.probe(ctx, append(append(internal, external...), icons...), results)
 	return results
+}
+
+// FaviconFallbackURL returns the conventional /favicon.ico URL for a site.
+func FaviconFallbackURL(website string) string {
+	u, err := url.Parse(website)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	return u.Scheme + "://" + u.Host + "/favicon.ico"
 }
 
 // probeDelay is the minimum site-wide spacing between probe requests, so

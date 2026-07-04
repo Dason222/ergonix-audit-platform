@@ -69,6 +69,10 @@ type Page struct {
 	MetaRobots      string   `json:"metaRobots,omitempty"`
 	Hreflangs       []string `json:"hreflangs,omitempty"`
 	OGProperties    []string `json:"ogProperties,omitempty"`
+	Favicons        []string `json:"favicons,omitempty"` // resolved icon URLs from <link rel*="icon">
+	HasAppleTouchIcon bool   `json:"hasAppleTouchIcon,omitempty"`
+	HasViewport     bool     `json:"hasViewport,omitempty"`
+	HasCharset      bool     `json:"hasCharset,omitempty"`
 
 	H1s         []string   `json:"h1s"`
 	H2s         []string   `json:"h2s"`

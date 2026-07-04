@@ -42,6 +42,24 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 	})
 	p.OGProperties = uniqueStrings(p.OGProperties)
 
+	doc.Find(`head link[rel]`).Each(func(_ int, s *goquery.Selection) {
+		rel, _ := s.Attr("rel")
+		rel = strings.ToLower(rel)
+		if !strings.Contains(rel, "icon") {
+			return
+		}
+		if strings.Contains(rel, "apple-touch-icon") {
+			p.HasAppleTouchIcon = true
+		}
+		if href, _ := s.Attr("href"); href != "" {
+			p.Favicons = append(p.Favicons, resolveRef(pageURL, href))
+		}
+	})
+	p.Favicons = uniqueStrings(p.Favicons)
+	p.HasViewport = doc.Find(`head meta[name="viewport"]`).Length() > 0
+	p.HasCharset = doc.Find(`head meta[charset]`).Length() > 0 ||
+		doc.Find(`head meta[http-equiv="Content-Type"]`).Length() > 0
+
 	doc.Find("h1").Each(func(_ int, s *goquery.Selection) {
 		p.H1s = append(p.H1s, collapseSpace(s.Text()))
 	})

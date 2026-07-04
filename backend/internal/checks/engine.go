@@ -74,12 +74,15 @@ func (e *Engine) registerDefaults() {
 		&NoindexCheck{},
 		&OGTagsCheck{},
 		&CurrencyCheck{},
+		&TemplateErrorCheck{},
 	}
 	e.siteChecks = []SiteCheck{
 		&BrokenLinkCheck{},
 		&DuplicateTitleCheck{},
 		&DuplicateMetaCheck{},
 		&HreflangCheck{},
+		&FaviconCheck{},
+		&MobileBasicsCheck{},
 	}
 }
 
