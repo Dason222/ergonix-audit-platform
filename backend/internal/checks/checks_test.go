@@ -306,6 +306,27 @@ func TestBrokenLinkCheck(t *testing.T) {
 	}
 }
 
+func TestBrokenLinkExternal403LowConfidence(t *testing.T) {
+	p := goodPage()
+	p.Links = []models.Link{
+		{Href: "https://www.trustpilot.com/review/x", Text: "Reviews", Internal: false},
+	}
+	context := sc(p)
+	context.Links = LinkStatusMap{
+		"https://www.trustpilot.com/review/x": {StatusCode: 403},
+	}
+	got := (&BrokenLinkCheck{}).CheckSite(context)
+	if len(got) != 1 {
+		t.Fatalf("issues = %d, want 1", len(got))
+	}
+	if got[0].Confidence != 0.5 {
+		t.Errorf("external 403 confidence = %v, want 0.5 (bot protection is likely)", got[0].Confidence)
+	}
+	if !strings.Contains(got[0].Description, "bot protection") {
+		t.Errorf("description should mention bot protection: %s", got[0].Description)
+	}
+}
+
 func TestEngineRunSetsMetadata(t *testing.T) {
 	p := goodPage()
 	p.Title = "" // trigger one issue
