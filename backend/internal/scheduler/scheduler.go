@@ -31,10 +31,10 @@ type Scheduler struct {
 	orch  *audit.Orchestrator
 	log   *slog.Logger
 
-	mu       sync.Mutex
-	cfg      Config
-	reconfig chan struct{}
-	started  bool
+	mu          sync.Mutex
+	cfg         Config
+	reconfig    chan struct{}
+	lastTrigger time.Time // when a scheduled audit was last started
 }
 
 // New builds a Scheduler with an initial config.
@@ -64,7 +64,26 @@ func (s *Scheduler) snapshot() Config {
 
 // Start launches the always-on control loop.
 func (s *Scheduler) Start(ctx context.Context) {
+	s.seedLastTrigger()
 	go s.loop(ctx)
+}
+
+// seedLastTrigger initializes lastTrigger from the most recent scheduled
+// audit's creation time, so a restart resumes the cadence instead of
+// treating the schedule as never-run.
+func (s *Scheduler) seedLastTrigger() {
+	audits, _, err := s.store.ListAudits(50, 0)
+	if err != nil {
+		return
+	}
+	for _, a := range audits { // newest first
+		if a.Trigger == "scheduled" {
+			s.mu.Lock()
+			s.lastTrigger = a.CreatedAt
+			s.mu.Unlock()
+			return
+		}
+	}
 }
 
 func (s *Scheduler) loop(ctx context.Context) {
@@ -102,26 +121,45 @@ func (s *Scheduler) arm(timer *time.Timer, initial bool) {
 	if !cfg.Enabled || cfg.Interval <= 0 || len(cfg.Websites) == 0 {
 		return
 	}
-	delay := cfg.Interval
-	if (initial && cfg.AtStart) || s.overdue(cfg.Interval) {
-		delay = 5 * time.Second // due now — run shortly after (re)config
+	if initial && cfg.AtStart {
+		timer.Reset(5 * time.Second) // explicit "run once on boot"
+		return
 	}
-	timer.Reset(delay)
+	timer.Reset(s.nextDelay(cfg.Interval))
 }
 
-// overdue reports whether no scheduled audit has completed within the last
-// interval, so a restart or re-enable doesn't skip a due run.
-func (s *Scheduler) overdue(interval time.Duration) bool {
-	audits, _, err := s.store.ListAudits(50, 0)
+// nextDelay computes how long until the next scheduled run, based on when a
+// scheduled audit was LAST STARTED (not when it finished). This is what
+// prevents runaway re-triggering: once trigger() records lastTrigger=now,
+// the next run is a full interval away regardless of how long the audit runs.
+func (s *Scheduler) nextDelay(interval time.Duration) time.Duration {
+	s.mu.Lock()
+	last := s.lastTrigger
+	s.mu.Unlock()
+
+	const soon = 5 * time.Second // grace so the server is fully up
+	if last.IsZero() {
+		return soon // never run — start shortly after enabling
+	}
+	if elapsed := time.Since(last); elapsed < interval {
+		return interval - elapsed
+	}
+	return soon // overdue — run shortly
+}
+
+// scheduledInFlight reports whether a scheduled audit is still pending or
+// running, so we never stack a second one on top of it.
+func (s *Scheduler) scheduledInFlight() bool {
+	audits, _, err := s.store.ListAudits(20, 0)
 	if err != nil {
 		return false
 	}
 	for _, a := range audits {
-		if a.Trigger == "scheduled" && a.FinishedAt != nil {
-			return time.Since(*a.FinishedAt) >= interval
+		if a.Trigger == "scheduled" && a.Running() {
+			return true
 		}
 	}
-	return true // never run a scheduled audit before
+	return false
 }
 
 // trigger creates and starts one scheduled audit.
@@ -130,6 +168,19 @@ func (s *Scheduler) trigger(ctx context.Context) {
 	if ctx.Err() != nil || !cfg.Enabled || len(cfg.Websites) == 0 {
 		return
 	}
+	// Never stack scheduled audits: if one is still in flight, skip this
+	// tick and try again next interval.
+	if s.scheduledInFlight() {
+		s.log.Info("scheduler: previous scheduled audit still running, skipping this tick")
+		s.mu.Lock()
+		s.lastTrigger = nowUTC() // reset the clock so we wait a full interval
+		s.mu.Unlock()
+		return
+	}
+	s.mu.Lock()
+	s.lastTrigger = nowUTC()
+	s.mu.Unlock()
+
 	params := cfg.Params
 	params.Websites = append([]string(nil), cfg.Websites...)
 	params.Normalize()
