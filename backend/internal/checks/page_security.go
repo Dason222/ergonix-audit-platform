@@ -82,13 +82,25 @@ func (SecurityHeadersCheck) CheckSite(sc *SiteContext) []models.Issue {
 	if sample.Headers["X-Content-Type-Options"] == "" {
 		missing = append(missing, "X-Content-Type-Options: nosniff")
 	}
+	// Clickjacking protection: X-Frame-Options or a CSP frame-ancestors.
+	if sample.Headers["X-Frame-Options"] == "" &&
+		!strings.Contains(strings.ToLower(sample.Headers["Content-Security-Policy"]), "frame-ancestors") {
+		missing = append(missing, "X-Frame-Options / frame-ancestors (clickjacking)")
+	}
+	if sample.Headers["Referrer-Policy"] == "" {
+		missing = append(missing, "Referrer-Policy")
+	}
 	if len(missing) > 0 {
+		sev := models.SeverityMedium
+		if len(missing) >= 4 {
+			sev = models.SeverityHigh
+		}
 		issues = append(issues, models.Issue{
 			PageURL:  sample.URL,
 			Category: models.CategorySecurity,
-			Severity: models.SeverityMedium,
+			Severity: sev,
 			Title:    "Missing security headers",
-			Description: fmt.Sprintf("Responses lack: %s. These headers protect customers against protocol downgrade, XSS and MIME-sniffing attacks.",
+			Description: fmt.Sprintf("Responses lack: %s. These headers protect customers against protocol downgrade, clickjacking, XSS and MIME-sniffing attacks.",
 				strings.Join(missing, "; ")),
 			SuggestedFix: "Configure the missing security headers at the platform/CDN level.",
 			Details:      map[string]any{"missing": missing},
@@ -108,6 +120,59 @@ func (SecurityHeadersCheck) CheckSite(sc *SiteContext) []models.Issue {
 		}
 	}
 	return issues
+}
+
+// TabnabbingCheck flags links that open in a new tab (target="_blank")
+// without rel="noopener" — the opened page can hijack the original tab via
+// window.opener (reverse tabnabbing / phishing).
+type TabnabbingCheck struct{}
+
+func (TabnabbingCheck) Name() string { return "tabnabbing" }
+
+func (TabnabbingCheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue {
+	var vulnerable []string
+	for _, l := range p.Links {
+		if l.TargetBlank && !l.NoOpener && !l.Internal {
+			vulnerable = append(vulnerable, l.Href)
+		}
+	}
+	if len(vulnerable) == 0 {
+		return nil
+	}
+	is := issue(p, models.CategorySecurity, models.SeverityLow,
+		"Links vulnerable to reverse tabnabbing",
+		fmt.Sprintf("%d external link(s) use target=\"_blank\" without rel=\"noopener\", e.g. %s. The opened site can redirect this tab to a phishing page.",
+			len(vulnerable), strings.Join(capStrings(vulnerable, 3), ", ")),
+		"Add rel=\"noopener noreferrer\" to links that open in a new tab.")
+	is.Details = map[string]any{"links": vulnerable}
+	return []models.Issue{is}
+}
+
+// SRICheck flags third-party scripts loaded without Subresource Integrity.
+// If the external host is compromised, malicious JS runs on the store with
+// no integrity guard.
+type SRICheck struct{}
+
+func (SRICheck) Name() string { return "subresource-integrity" }
+
+func (SRICheck) CheckPage(_ *SiteContext, p *models.Page) []models.Issue {
+	var unprotected []string
+	for _, s := range p.Scripts {
+		if s.External && !s.HasIntegrity && s.Src != "" {
+			unprotected = append(unprotected, s.Src)
+		}
+	}
+	if len(unprotected) == 0 {
+		return nil
+	}
+	is := issue(p, models.CategorySecurity, models.SeverityLow,
+		"Third-party scripts without Subresource Integrity",
+		fmt.Sprintf("%d external script(s) load without an integrity hash, e.g. %s. A compromise of the CDN would execute arbitrary code on the store.",
+			len(unprotected), strings.Join(capStrings(unprotected, 3), ", ")),
+		"Add an integrity (SRI) hash and crossorigin attribute to third-party <script> tags where possible.")
+	is.Confidence = 0.6 // many CDNs rotate URLs and can't use static SRI
+	is.Details = map[string]any{"scripts": unprotected}
+	return []models.Issue{is}
 }
 
 // HTTPLinkCheck flags plain-http anchor links on https pages (navigation,

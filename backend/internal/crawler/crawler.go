@@ -282,7 +282,8 @@ func (c *Crawler) doFetch(ctx context.Context, client *http.Client, root *url.UR
 	for _, h := range []string{
 		"Strict-Transport-Security", "Content-Security-Policy",
 		"X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy",
-		"Server", "X-Powered-By",
+		"Permissions-Policy", "Server", "X-Powered-By", "X-AspNet-Version",
+		"X-Generator",
 	} {
 		if v := resp.Header.Get(h); v != "" {
 			if page.Headers == nil {
@@ -290,6 +291,9 @@ func (c *Crawler) doFetch(ctx context.Context, client *http.Client, root *url.UR
 			}
 			page.Headers[h] = v
 		}
+	}
+	if cookies := resp.Header.Values("Set-Cookie"); len(cookies) > 0 {
+		page.Cookies = cookies
 	}
 
 	body, err := io.ReadAll(io.LimitReader(resp.Body, c.cfg.MaxBodyBytes))

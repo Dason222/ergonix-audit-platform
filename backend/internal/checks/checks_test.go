@@ -24,11 +24,21 @@ func goodPage() *models.Page {
 		Favicons:          []string{"https://ergonix.lt/favicon.png"},
 		HasAppleTouchIcon: true,
 		HasViewport:       true,
+		ViewportContent:   "width=device-width, initial-scale=1",
 		HasCharset:        true,
+		StructuredTypes:   []string{"Product", "BreadcrumbList"},
+		HeadingLevels:     []int{1, 2, 2, 3},
 		H1s:             []string{"Ergonominė biuro kėdė"},
-		Images:          []models.Image{{Src: "https://ergonix.lt/img/kede.jpg", Alt: "Kėdė", HasAlt: true}},
+		Images:          []models.Image{{Src: "https://ergonix.lt/img/kede.jpg", Alt: "Kėdė", HasAlt: true, HasDimensions: true}},
 		Buttons:         []models.Button{{Text: "Į krepšelį", Type: "submit", HasAction: true}},
 		Forms:           []models.Form{{Action: "/cart", Method: "POST", Inputs: 2, HasSubmit: true}},
+		Headers: map[string]string{
+			"Strict-Transport-Security": "max-age=31536000",
+			"Content-Security-Policy":   "default-src 'self'",
+			"X-Content-Type-Options":    "nosniff",
+			"X-Frame-Options":           "SAMEORIGIN",
+			"Referrer-Policy":           "strict-origin",
+		},
 		ResponseTimeMs:  200,
 		LoadTimeMs:      900,
 	}
@@ -61,10 +71,25 @@ func TestGoodPageProducesNoIssues(t *testing.T) {
 		&RedirectCheck{}, &SEOBasicsCheck{},
 		&NoindexCheck{}, &OGTagsCheck{}, &CurrencyCheck{}, &TemplateErrorCheck{},
 		&ZeroPriceCheck{}, &InsecureFormCheck{}, &WrongLanguageCheck{},
+		&TabnabbingCheck{}, &SRICheck{}, &StructuredDataCheck{},
+		&HeadingHierarchyCheck{}, &ImageDimensionsCheck{}, &ViewportZoomCheck{},
 	}
 	for _, chk := range checksList {
 		if got := chk.CheckPage(context, p); len(got) != 0 {
 			t.Errorf("%s fired on a good page: %+v", chk.Name(), got)
+		}
+	}
+	// Site-level checks must also be silent on a healthy site.
+	healthySite := sc(p)
+	healthySite.Recon = &ReconData{HTTPSRedirect: "ok",
+		Robots: LinkResult{StatusCode: 200}, Sitemap: LinkResult{StatusCode: 200}}
+	siteChecks := []SiteCheck{
+		&SecurityHeadersCheck{}, &HTTPSRedirectCheck{}, &SensitiveFileCheck{},
+		&RobotsSitemapCheck{}, &CookieSecurityCheck{},
+	}
+	for _, chk := range siteChecks {
+		if got := chk.CheckSite(healthySite); len(got) != 0 {
+			t.Errorf("%s fired on a good site: %+v", chk.Name(), got)
 		}
 	}
 }
@@ -533,28 +558,24 @@ func TestInsecureFormCheck(t *testing.T) {
 	}
 }
 
-func TestSecurityHeadersCheck(t *testing.T) {
+func TestSecurityHeadersVersionDisclosure(t *testing.T) {
 	p := goodPage()
-	p.Headers = map[string]string{"Server": "nginx/1.18.0"} // no HSTS/CSP/XCTO + version
+	p.Headers = map[string]string{"Server": "nginx/1.18.0"} // missing headers + version
 	got := (&SecurityHeadersCheck{}).CheckSite(sc(p))
-	if len(got) != 2 {
+	if len(got) < 2 {
 		t.Fatalf("issues = %d: %+v", len(got), got)
 	}
-	if !strings.Contains(got[0].Description, "Strict-Transport-Security") {
-		t.Errorf("missing headers issue: %s", got[0].Description)
+	var missing, disclosure bool
+	for _, is := range got {
+		if strings.Contains(is.Title, "Missing security headers") {
+			missing = true
+		}
+		if strings.Contains(is.Title, "version disclosure") {
+			disclosure = true
+		}
 	}
-	if !strings.Contains(got[1].Title, "version disclosure") {
-		t.Errorf("disclosure issue: %s", got[1].Title)
-	}
-
-	p.Headers = map[string]string{
-		"Strict-Transport-Security": "max-age=31536000",
-		"Content-Security-Policy":   "default-src 'self'",
-		"X-Content-Type-Options":    "nosniff",
-		"Server":                    "cloudflare",
-	}
-	if got := (&SecurityHeadersCheck{}).CheckSite(sc(p)); len(got) != 0 {
-		t.Errorf("hardened site should be silent: %+v", got)
+	if !missing || !disclosure {
+		t.Errorf("expected missing-headers + version-disclosure: %+v", got)
 	}
 }
 

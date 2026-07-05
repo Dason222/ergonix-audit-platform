@@ -19,6 +19,8 @@ type SiteContext struct {
 	// Links maps absolute URL -> probe result for every unique link found
 	// on the site. Populated by the engine before checks run.
 	Links LinkStatusMap
+	// Recon holds active security/infrastructure probe results.
+	Recon *ReconData
 	Cfg   Config
 }
 
@@ -78,6 +80,12 @@ func (e *Engine) registerDefaults() {
 		&ZeroPriceCheck{},
 		&InsecureFormCheck{},
 		&WrongLanguageCheck{},
+		&TabnabbingCheck{},
+		&SRICheck{},
+		&StructuredDataCheck{},
+		&HeadingHierarchyCheck{},
+		&ImageDimensionsCheck{},
+		&ViewportZoomCheck{},
 	}
 	e.siteChecks = []SiteCheck{
 		&BrokenLinkCheck{},
@@ -87,6 +95,10 @@ func (e *Engine) registerDefaults() {
 		&FaviconCheck{},
 		&MobileBasicsCheck{},
 		&SecurityHeadersCheck{},
+		&SensitiveFileCheck{},
+		&HTTPSRedirectCheck{},
+		&RobotsSitemapCheck{},
+		&CookieSecurityCheck{},
 	}
 }
 
@@ -98,6 +110,9 @@ func (e *Engine) Run(ctx context.Context, sc *SiteContext) []models.Issue {
 	}
 	sc.Links = e.prober.ProbeSite(ctx, sc)
 	e.prober.sizeAssets(ctx, sc)
+	if sc.Recon == nil {
+		sc.Recon = e.prober.Recon(ctx, sc.Website)
+	}
 
 	var issues []models.Issue
 	for _, p := range sc.Pages {

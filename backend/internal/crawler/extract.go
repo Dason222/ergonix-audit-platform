@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"encoding/json"
 	"net/url"
 	"regexp"
 	"strings"
@@ -61,18 +62,36 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 		}
 	})
 	p.Favicons = uniqueStrings(p.Favicons)
-	p.HasViewport = doc.Find(`meta[name="viewport"]`).Length() > 0
+	if vp := doc.Find(`meta[name="viewport"]`).First(); vp.Length() > 0 {
+		p.HasViewport = true
+		p.ViewportContent, _ = vp.Attr("content")
+	}
 	p.HasCharset = doc.Find(`meta[charset]`).Length() > 0 ||
 		doc.Find(`meta[http-equiv="Content-Type"]`).Length() > 0
 
-	doc.Find("h1").Each(func(_ int, s *goquery.Selection) {
-		p.H1s = append(p.H1s, collapseSpace(s.Text()))
-	})
-	doc.Find("h2").Each(func(_ int, s *goquery.Selection) {
-		if t := collapseSpace(s.Text()); t != "" {
-			p.H2s = append(p.H2s, t)
+	doc.Find("h1, h2, h3, h4, h5, h6").Each(func(_ int, s *goquery.Selection) {
+		name := goquery.NodeName(s)
+		if len(name) == 2 && name[0] == 'h' {
+			p.HeadingLevels = append(p.HeadingLevels, int(name[1]-'0'))
+		}
+		switch name {
+		case "h1":
+			p.H1s = append(p.H1s, collapseSpace(s.Text()))
+		case "h2":
+			if t := collapseSpace(s.Text()); t != "" {
+				p.H2s = append(p.H2s, t)
+			}
 		}
 	})
+
+	// Structured data (JSON-LD) @type values.
+	doc.Find(`script[type="application/ld+json"]`).Each(func(_ int, s *goquery.Selection) {
+		for _, t := range jsonLDTypes(s.Text()) {
+			p.StructuredTypes = append(p.StructuredTypes, t)
+		}
+	})
+	p.StructuredTypes = uniqueStrings(p.StructuredTypes)
+	p.PasswordFields = doc.Find(`input[type="password"]`).Length()
 
 	doc.Find("img").Each(func(_ int, s *goquery.Selection) {
 		src, _ := s.Attr("src")
@@ -80,10 +99,13 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 			src, _ = s.Attr("data-src")
 		}
 		alt, hasAlt := s.Attr("alt")
+		_, hasW := s.Attr("width")
+		_, hasH := s.Attr("height")
 		p.Images = append(p.Images, models.Image{
-			Src:    resolveRef(pageURL, src),
-			Alt:    strings.TrimSpace(alt),
-			HasAlt: hasAlt,
+			Src:           resolveRef(pageURL, src),
+			Alt:           strings.TrimSpace(alt),
+			HasAlt:        hasAlt,
+			HasDimensions: hasW && hasH,
 		})
 	})
 
@@ -94,11 +116,15 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 			return
 		}
 		rel, _ := s.Attr("rel")
+		relLow := strings.ToLower(rel)
+		target, _ := s.Attr("target")
 		p.Links = append(p.Links, models.Link{
-			Href:     norm,
-			Text:     collapseSpace(s.Text()),
-			Internal: SameSite(pageURL, norm),
-			Nofollow: strings.Contains(strings.ToLower(rel), "nofollow"),
+			Href:        norm,
+			Text:        collapseSpace(s.Text()),
+			Internal:    SameSite(pageURL, norm),
+			Nofollow:    strings.Contains(relLow, "nofollow"),
+			TargetBlank: strings.EqualFold(strings.TrimSpace(target), "_blank"),
+			NoOpener:    strings.Contains(relLow, "noopener") || strings.Contains(relLow, "noreferrer"),
 		})
 	})
 
@@ -158,8 +184,19 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 		})
 
 	doc.Find("script").Each(func(_ int, s *goquery.Selection) {
+		// Data scripts (JSON-LD, importmap, templates) are not JS bundles.
+		if typ, _ := s.Attr("type"); typ != "" &&
+			!strings.Contains(typ, "javascript") && typ != "module" && typ != "text/babel" {
+			return
+		}
 		if src, ok := s.Attr("src"); ok && src != "" {
-			p.Scripts = append(p.Scripts, models.Resource{Src: resolveRef(pageURL, src)})
+			abs := resolveRef(pageURL, src)
+			_, hasIntegrity := s.Attr("integrity")
+			p.Scripts = append(p.Scripts, models.Resource{
+				Src:          abs,
+				External:     !SameSite(pageURL, abs),
+				HasIntegrity: hasIntegrity,
+			})
 		} else if len(strings.TrimSpace(s.Text())) > 0 {
 			p.Scripts = append(p.Scripts, models.Resource{Inline: true, SizeBytes: int64(len(s.Text()))})
 		}
@@ -251,6 +288,47 @@ func buttonHasAction(s *goquery.Selection) bool {
 		return true
 	}
 	return false
+}
+
+// jsonLDTypes extracts the @type values from a JSON-LD script body. It is
+// tolerant of arrays, @graph wrappers and malformed JSON (returns nil).
+func jsonLDTypes(body string) []string {
+	body = strings.TrimSpace(body)
+	if body == "" {
+		return nil
+	}
+	var data any
+	if err := json.Unmarshal([]byte(body), &data); err != nil {
+		return nil
+	}
+	var out []string
+	var walk func(v any)
+	walk = func(v any) {
+		switch t := v.(type) {
+		case map[string]any:
+			if typ, ok := t["@type"]; ok {
+				switch tv := typ.(type) {
+				case string:
+					out = append(out, tv)
+				case []any:
+					for _, e := range tv {
+						if s, ok := e.(string); ok {
+							out = append(out, s)
+						}
+					}
+				}
+			}
+			if g, ok := t["@graph"]; ok {
+				walk(g)
+			}
+		case []any:
+			for _, e := range t {
+				walk(e)
+			}
+		}
+	}
+	walk(data)
+	return out
 }
 
 // elementHint builds a short human-usable locator for an element from its

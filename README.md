@@ -13,12 +13,22 @@ analysis, and produces filterable, exportable reports.
   storefront (robots.txt respected, duplicates skipped, configurable pages /
   depth / concurrency / timeout / retries). No page content is ever entered
   manually; everything comes from live pages.
-- **Rule-based checks** — broken internal/external links, 404/5xx pages,
-  missing/duplicate titles and meta descriptions, missing/multiple H1, missing
-  image alt, oversized images and JS/CSS bundles, slow responses and loads,
-  HTTP links and mixed content on HTTPS, hardcoded cross-country links, empty
-  or inert buttons, forms without submit, redirect loops/chains and unexpected
-  cross-domain redirects, console errors and failed requests (browser pass).
+- **Rule-based checks (40+)** — broken internal/external links, 404/5xx pages,
+  missing/duplicate titles and meta descriptions, missing/multiple H1, skipped
+  heading levels, missing image alt, oversized images and JS/CSS bundles, images
+  without dimensions (CLS), slow responses and loads, HTTP links and mixed
+  content on HTTPS, hardcoded cross-country links, empty or inert buttons, forms
+  without submit, redirect loops/chains and unexpected cross-domain redirects,
+  console errors and failed requests (browser pass), template/Liquid errors,
+  zero/wrong-currency prices, missing Open Graph / structured data / hreflang /
+  favicon / viewport.
+- **Security checks** — exposed sensitive files (`.git`, `.env`, DB dumps,
+  phpinfo — with content validation to avoid soft-404 false positives),
+  HTTP→HTTPS redirect enforcement, missing security headers (HSTS, CSP,
+  clickjacking, X-Content-Type-Options, Referrer-Policy), cookies without
+  Secure/SameSite, insecure form actions, reverse-tabnabbing links, third-party
+  scripts without Subresource Integrity, mixed content, and server version
+  disclosure.
 - **AI content analysis** — structured page extracts (never raw HTML) are sent
   to an OpenAI-compatible model that judges language correctness per country,
   translation quality, placeholders, pricing sanity, missing shipping/warranty

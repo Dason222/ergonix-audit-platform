@@ -27,15 +27,18 @@ const fixtureHTML = `<!DOCTYPE html>
   <style>.x{color:red}</style>
 </head>
 <body>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Kėdė"}</script>
   <h1>Ergonominė kėdė</h1>
   <h2>Aprašymas</h2>
   <h2>  </h2>
-  <img src="/img/kede.jpg" alt="Kėdė">
+  <h4>Per gilus lygis</h4>
+  <img src="/img/kede.jpg" alt="Kėdė" width="600" height="400">
   <img src="/img/no-alt.jpg">
   <img src="http://insecure.example.com/pix.png" alt="">
   <a href="/products/kita-kede">Kita kėdė</a>
   <a href="https://ergonix.lv/products/kede">LV versija</a>
   <a href="/blog?utm_source=x" rel="nofollow">Blogas</a>
+  <a href="https://facebook.com/ergonix" target="_blank">Facebook</a>
   <a href="javascript:void(0)">JS link</a>
   <form action="/search" method="get">
     <input type="text" name="q">
@@ -49,6 +52,8 @@ const fixtureHTML = `<!DOCTYPE html>
   <button onclick="addToCart()">Į krepšelį</button>
   <p>Kaina: 129,99 € su PVM. Sena kaina 1 299,00 €.</p>
   <script src="/assets/app.js"></script>
+  <script src="https://cdn.thirdparty.com/lib.js"></script>
+  <script src="https://cdn.thirdparty.com/ok.js" integrity="sha384-abc"></script>
   <script>console.log("inline")</script>
 </body>
 </html>`
@@ -98,6 +103,49 @@ func TestExtractBasics(t *testing.T) {
 		t.Errorf("head basics: apple=%v viewport=%v charset=%v",
 			p.HasAppleTouchIcon, p.HasViewport, p.HasCharset)
 	}
+	if p.ViewportContent != "width=device-width, initial-scale=1" {
+		t.Errorf("viewportContent = %q", p.ViewportContent)
+	}
+}
+
+func TestExtractSecurityAndQualityFields(t *testing.T) {
+	p := extractFixture(t)
+
+	// JSON-LD Product type.
+	if len(p.StructuredTypes) != 1 || p.StructuredTypes[0] != "Product" {
+		t.Errorf("structuredTypes = %v", p.StructuredTypes)
+	}
+	// Heading levels in document order: h1, h2, h2(empty still counted), h4.
+	if len(p.HeadingLevels) != 4 || p.HeadingLevels[0] != 1 || p.HeadingLevels[3] != 4 {
+		t.Errorf("headingLevels = %v", p.HeadingLevels)
+	}
+	// Image dimensions: first has width+height, others don't.
+	if !p.Images[0].HasDimensions || p.Images[1].HasDimensions {
+		t.Errorf("image dimensions: %+v", p.Images)
+	}
+	// target=_blank facebook link without noopener.
+	var fb *models.Link
+	for i := range p.Links {
+		if strings.Contains(p.Links[i].Href, "facebook") {
+			fb = &p.Links[i]
+		}
+	}
+	if fb == nil || !fb.TargetBlank || fb.NoOpener {
+		t.Errorf("facebook link: %+v", fb)
+	}
+	// Scripts: app.js (same-site), thirdparty lib (external no SRI), thirdparty ok (external+SRI).
+	var extNoSRI, extSRI int
+	for _, s := range p.Scripts {
+		if s.External && !s.HasIntegrity {
+			extNoSRI++
+		}
+		if s.External && s.HasIntegrity {
+			extSRI++
+		}
+	}
+	if extNoSRI != 1 || extSRI != 1 {
+		t.Errorf("script SRI classification: noSRI=%d SRI=%d (%+v)", extNoSRI, extSRI, p.Scripts)
+	}
 }
 
 func TestExtractImagesAltDetection(t *testing.T) {
@@ -118,8 +166,8 @@ func TestExtractImagesAltDetection(t *testing.T) {
 
 func TestExtractLinks(t *testing.T) {
 	p := extractFixture(t)
-	if len(p.Links) != 3 { // js link dropped
-		t.Fatalf("links = %d, want 3: %+v", len(p.Links), p.Links)
+	if len(p.Links) != 4 { // js link dropped; facebook kept
+		t.Fatalf("links = %d, want 4: %+v", len(p.Links), p.Links)
 	}
 	if !p.Links[0].Internal {
 		t.Error("first link should be internal")
@@ -185,7 +233,7 @@ func TestExtractPricesAndMixedContent(t *testing.T) {
 	if len(p.MixedContent) != 1 || !strings.Contains(p.MixedContent[0], "insecure.example.com") {
 		t.Errorf("mixed content = %v", p.MixedContent)
 	}
-	if len(p.Scripts) != 2 || len(p.Stylesheets) != 2 {
+	if len(p.Scripts) != 4 || len(p.Stylesheets) != 2 { // app.js + 2 cdn + inline
 		t.Errorf("scripts=%d stylesheets=%d", len(p.Scripts), len(p.Stylesheets))
 	}
 	if !strings.Contains(p.VisibleText, "Kaina") || strings.Contains(p.VisibleText, "console.log") {
