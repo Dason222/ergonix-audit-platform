@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"sort"
+	"strings"
+	"time"
+)
 
 // AuditParams are the user-supplied knobs for one audit run.
 type AuditParams struct {
@@ -83,6 +87,13 @@ type AuditStats struct {
 	BySource      map[Source]int    `json:"bySource"`
 	AISkipped     bool              `json:"aiSkipped,omitempty"`
 	Notes         []string          `json:"notes,omitempty"`
+
+	// Change analysis vs the previous audit of the same site(s).
+	PreviousAuditID  int64    `json:"previousAuditId,omitempty"`
+	NewCount         int      `json:"newCount"`
+	ResolvedCount    int      `json:"resolvedCount"`
+	NewBySeverity    map[Severity]int `json:"newBySeverity,omitempty"`
+	ResolvedSummary  []string `json:"resolvedSummary,omitempty"`
 }
 
 // NewAuditStats returns stats with initialized maps.
@@ -100,6 +111,8 @@ type Audit struct {
 	ID         int64       `json:"id"`
 	Status     AuditStatus `json:"status"`
 	Stage      string      `json:"stage"`
+	// Trigger records what started the audit: "manual" (default) or "scheduled".
+	Trigger    string      `json:"trigger,omitempty"`
 	Params     AuditParams `json:"params"`
 	Sites      []AuditSite `json:"sites"`
 	Stats      AuditStats  `json:"stats"`
@@ -107,6 +120,14 @@ type Audit struct {
 	CreatedAt  time.Time   `json:"createdAt"`
 	StartedAt  *time.Time  `json:"startedAt,omitempty"`
 	FinishedAt *time.Time  `json:"finishedAt,omitempty"`
+}
+
+// WebsiteKey returns a stable key identifying the exact set of sites this
+// audit covered, for matching audits run-to-run.
+func (a *Audit) WebsiteKey() string {
+	ws := append([]string(nil), a.Params.Websites...)
+	sort.Strings(ws)
+	return strings.Join(ws, ",")
 }
 
 // Running reports whether the audit is still in flight.

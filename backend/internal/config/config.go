@@ -35,6 +35,12 @@ type Config struct {
 	BrowserEnabled      bool
 	BrowserPagesPerSite int
 
+	// Scheduler: automatic recurring audits.
+	ScheduleEnabled  bool
+	ScheduleInterval time.Duration
+	ScheduleAtStart  bool
+	ScheduleWebsites []string
+
 	// AI
 	AIAPIKey       string
 	AIBaseURL      string
@@ -98,6 +104,11 @@ func Load() *Config {
 
 		BrowserEnabled:      envBool("BROWSER_ENABLED", false),
 		BrowserPagesPerSite: envInt("BROWSER_PAGES_PER_SITE", 5),
+
+		ScheduleEnabled:  envBool("SCHEDULE_ENABLED", false),
+		ScheduleInterval: time.Duration(envInt("SCHEDULE_INTERVAL_HOURS", 24)) * time.Hour,
+		ScheduleAtStart:  envBool("SCHEDULE_AT_START", false),
+		ScheduleWebsites: splitCSV(env("SCHEDULE_WEBSITES", "")), // empty = all configured
 
 		AIAPIKey:       env("OPENAI_API_KEY", ""),
 		AIBaseURL:      strings.TrimRight(env("OPENAI_BASE_URL", "https://api.openai.com/v1"), "/"),

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { StatusBadge } from "../components/badges";
+import { StatusBadge, TriggerBadge } from "../components/badges";
 import { EmptyState, ErrorNote, Panel, Spinner } from "../components/panels";
 import { useAudits, useDeleteAudit } from "../hooks/useApi";
 import { fmtDateTime, fmtDuration, hostOf } from "../utils/format";
@@ -57,7 +57,10 @@ export default function AuditsPage() {
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <StatusBadge status={a.status} />
+                  <div className="flex items-center gap-1.5">
+                    <StatusBadge status={a.status} />
+                    <TriggerBadge trigger={a.trigger} />
+                  </div>
                 </td>
                 <td className="max-w-[260px] px-4 py-2.5">
                   <div className="flex flex-wrap gap-1">

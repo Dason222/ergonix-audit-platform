@@ -52,6 +52,24 @@ OpenAI-compatible LLM client · SQLite (pure-Go, no CGO) — clean architecture:
 **Frontend** React 18 · TypeScript · Vite · Tailwind v4 · TanStack Query ·
 TanStack Table · Recharts.
 
+## Automatic scheduled audits (built in)
+
+The platform can audit the sites **on its own**, with no manual trigger. Set
+these and restart the backend:
+
+```bash
+SCHEDULE_ENABLED=true
+SCHEDULE_INTERVAL_HOURS=24     # audit every 24h
+SCHEDULE_AT_START=true        # also run once ~5s after boot
+```
+
+Scheduled audits are tagged **auto** in the history, survive restarts (a due
+run isn't skipped), and each run is compared against the previous audit of the
+same sites. The audit report then shows a **"Change since audit #N"** panel —
+new issues (with a `NEW` badge in the table), resolved issues, and a
+severity breakdown — so you see regressions the moment they appear rather than
+re-reading the whole list. This change analysis works for manual audits too.
+
 ## Fully automatic checks (no UI needed)
 
 The `audit` CLI runs the entire pipeline — crawl real pages → rule checks →

@@ -11,7 +11,7 @@ import { Fragment, useMemo, useState } from "react";
 
 import type { Issue, Page, Severity } from "../types/api";
 import { fmtDateTime, hostOf, pathOf } from "../utils/format";
-import { ConfidenceMeter, SeverityBadge, SourceBadge } from "./badges";
+import { ConfidenceMeter, NewBadge, SeverityBadge, SourceBadge } from "./badges";
 
 const SEV_ORDER: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
@@ -237,7 +237,10 @@ export default function IssuesTable({
         header: "Description",
         cell: (info) => (
           <div>
-            <div className="text-[13px] font-medium leading-snug">{info.getValue()}</div>
+            <div className="flex items-center gap-1.5 text-[13px] font-medium leading-snug">
+              {info.row.original.new && <NewBadge />}
+              {info.getValue()}
+            </div>
             <div className="line-clamp-1 text-[12px] text-ink-400">
               {info.row.original.description}
             </div>

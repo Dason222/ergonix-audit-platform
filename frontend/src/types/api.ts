@@ -49,12 +49,18 @@ export interface AuditStats {
   bySource: Partial<Record<Source, number>>;
   aiSkipped?: boolean;
   notes?: string[];
+  previousAuditId?: number;
+  newCount: number;
+  resolvedCount: number;
+  newBySeverity?: Partial<Record<Severity, number>>;
+  resolvedSummary?: string[];
 }
 
 export interface Audit {
   id: number;
   status: AuditStatus;
   stage: string;
+  trigger?: string;
   params: AuditParams;
   sites: AuditSite[];
   stats: AuditStats;
@@ -79,6 +85,7 @@ export interface Issue {
   confidence: number;
   screenshot?: string;
   details?: Record<string, unknown>;
+  new?: boolean;
   createdAt: string;
 }
 
@@ -137,6 +144,7 @@ export interface WebsitesResponse {
   aiModel: string;
   browserEnabled: boolean;
   categories: Category[];
+  schedule: { enabled: boolean; intervalHours: number };
 }
 
 export interface IssueFilters {

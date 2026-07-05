@@ -104,6 +104,9 @@ func (d *DB) ListIssues(f IssueFilter) ([]models.Issue, int, error) {
 		is.CreatedAt = parseTime(createdAt)
 		if details != "" && details != "{}" {
 			_ = json.Unmarshal([]byte(details), &is.Details)
+			if v, ok := is.Details["new"].(bool); ok {
+				is.New = v
+			}
 		}
 		out = append(out, is)
 	}

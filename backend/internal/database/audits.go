@@ -15,10 +15,13 @@ func (d *DB) CreateAudit(a *models.Audit) error {
 	if err != nil {
 		return err
 	}
+	if a.Trigger == "" {
+		a.Trigger = "manual"
+	}
 	res, err := d.sql.Exec(
-		`INSERT INTO audits (status, stage, params, sites, stats, error, created_at, started_at, finished_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		string(a.Status), a.Stage, params, sites, stats, a.Error,
+		`INSERT INTO audits (status, stage, "trigger", params, sites, stats, error, created_at, started_at, finished_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		string(a.Status), a.Stage, a.Trigger, params, sites, stats, a.Error,
 		fmtTime(a.CreatedAt), fmtTimePtr(a.StartedAt), fmtTimePtr(a.FinishedAt),
 	)
 	if err != nil {
@@ -49,7 +52,7 @@ func (d *DB) UpdateAudit(a *models.Audit) error {
 // GetAudit loads one audit by id, returning ErrNotFound if missing.
 func (d *DB) GetAudit(id int64) (*models.Audit, error) {
 	row := d.sql.QueryRow(
-		`SELECT id, status, stage, params, sites, stats, error, created_at, started_at, finished_at
+		`SELECT id, status, stage, "trigger", params, sites, stats, error, created_at, started_at, finished_at
 		 FROM audits WHERE id=?`, id)
 	a, err := scanAudit(row)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -68,7 +71,7 @@ func (d *DB) ListAudits(limit, offset int) ([]*models.Audit, int, error) {
 		return nil, 0, err
 	}
 	rows, err := d.sql.Query(
-		`SELECT id, status, stage, params, sites, stats, error, created_at, started_at, finished_at
+		`SELECT id, status, stage, "trigger", params, sites, stats, error, created_at, started_at, finished_at
 		 FROM audits ORDER BY id DESC LIMIT ? OFFSET ?`, limit, offset)
 	if err != nil {
 		return nil, 0, err
@@ -84,6 +87,32 @@ func (d *DB) ListAudits(limit, offset int) ([]*models.Audit, int, error) {
 		out = append(out, a)
 	}
 	return out, total, rows.Err()
+}
+
+// PreviousCompletedAudit returns the most recent completed audit before
+// beforeID that covered the same set of websites, or ErrNotFound. It powers
+// change analysis (what is new/resolved since last time).
+func (d *DB) PreviousCompletedAudit(beforeID int64, websiteKey string) (*models.Audit, error) {
+	rows, err := d.sql.Query(
+		`SELECT id, status, stage, "trigger", params, sites, stats, error, created_at, started_at, finished_at
+		 FROM audits WHERE id < ? AND status = 'completed' ORDER BY id DESC LIMIT 100`, beforeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		a, err := scanAudit(rows)
+		if err != nil {
+			return nil, err
+		}
+		if a.WebsiteKey() == websiteKey {
+			return a, nil
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return nil, ErrNotFound
 }
 
 // DeleteAudit removes an audit and (via FK cascade) its pages and issues.
@@ -118,16 +147,18 @@ func scanAudit(r rowScanner) (*models.Audit, error) {
 	var (
 		a                       models.Audit
 		status                  string
+		trigger                 string
 		params, sites, stats    string
 		createdAt               string
 		startedAt, finishedAt   sql.NullString
 	)
-	err := r.Scan(&a.ID, &status, &a.Stage, &params, &sites, &stats, &a.Error,
+	err := r.Scan(&a.ID, &status, &a.Stage, &trigger, &params, &sites, &stats, &a.Error,
 		&createdAt, &startedAt, &finishedAt)
 	if err != nil {
 		return nil, err
 	}
 	a.Status = models.AuditStatus(status)
+	a.Trigger = trigger
 	if err := json.Unmarshal([]byte(params), &a.Params); err != nil {
 		return nil, fmt.Errorf("audit %d params: %w", a.ID, err)
 	}

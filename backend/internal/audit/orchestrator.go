@@ -171,13 +171,17 @@ func (o *Orchestrator) run(ctx context.Context, a *models.Audit) {
 	for i := range allIssues {
 		allIssues[i].AuditID = a.ID
 	}
+	stats.TotalIssues = len(allIssues)
+	tallyIssues(&stats, allIssues)
+	// Change analysis vs the previous audit of the same sites — marks each
+	// issue New before it is persisted.
+	computeDiff(o.store, a.ID, a.WebsiteKey(), &stats, allIssues)
+
 	if err := o.store.SaveIssues(allIssues); err != nil {
 		o.log.Error("saving issues", "audit", a.ID, "err", err)
 		a.Error = "failed to save issues: " + err.Error()
 	}
 
-	stats.TotalIssues = len(allIssues)
-	tallyIssues(&stats, allIssues)
 	stats.DurationMs = time.Since(started).Milliseconds()
 	if a.Params.UseAI && o.analyzer == nil {
 		stats.AISkipped = true

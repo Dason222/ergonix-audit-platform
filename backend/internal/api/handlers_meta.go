@@ -25,6 +25,10 @@ func (s *Server) listWebsites(c *gin.Context) {
 		"aiModel":        s.cfg.AIModel,
 		"browserEnabled": s.cfg.BrowserEnabled,
 		"categories":     models.Categories,
+		"schedule": gin.H{
+			"enabled":      s.cfg.ScheduleEnabled,
+			"intervalHours": int(s.cfg.ScheduleInterval.Hours()),
+		},
 	})
 }
 

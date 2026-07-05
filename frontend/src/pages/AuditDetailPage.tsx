@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { api } from "../api/client";
 import { CategoryBars, SeverityDonut, WebsiteBars } from "../charts";
 import IssuesTable from "../components/IssuesTable";
-import { StatusBadge } from "../components/badges";
+import { StatusBadge, TriggerBadge } from "../components/badges";
 import { ErrorNote, Panel, Spinner, StatCard } from "../components/panels";
 import { useAudit, useCancelAudit, useIssues, usePages } from "../hooks/useApi";
 import type { Audit, AuditSite, Page } from "../types/api";
@@ -46,6 +46,7 @@ function AuditHeader({ audit }: { audit: Audit }) {
       <div className="flex items-center gap-3">
         <h2 className="font-mono text-lg font-semibold">Audit #{audit.id}</h2>
         <StatusBadge status={audit.status} />
+        <TriggerBadge trigger={audit.trigger} />
         <span className="text-xs text-ink-400">
           {fmtDateTime(audit.createdAt)} · {audit.params.websites.length} website
           {audit.params.websites.length === 1 ? "" : "s"} · max {audit.params.maxPages}{" "}
@@ -249,6 +250,8 @@ function ResultView({ audit }: { audit: Audit }) {
         </div>
       )}
 
+      {stats.previousAuditId ? <ChangePanel audit={audit} /> : null}
+
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <StatCard className="rise rise-1" label="Websites" value={stats.totalWebsites} />
         <StatCard className="rise rise-1" label="Pages" value={stats.totalPages} />
@@ -311,6 +314,57 @@ function ResultView({ audit }: { audit: Audit }) {
         <PagesInsights pages={pagesData?.pages ?? []} />
       </Panel>
     </div>
+  );
+}
+
+// ChangePanel summarizes what changed since the previous audit of the same
+// sites — the payoff of running audits automatically over time.
+function ChangePanel({ audit }: { audit: Audit }) {
+  const s = audit.stats;
+  const resolved = s.resolvedSummary ?? [];
+  return (
+    <Panel
+      title={`Change since audit #${s.previousAuditId}`}
+      className="rise rise-1"
+      action={
+        <Link
+          to={`/audits/${s.previousAuditId}`}
+          className="text-xs font-medium text-signal-600 hover:underline"
+        >
+          Compare →
+        </Link>
+      }
+    >
+      <div className="flex flex-wrap items-stretch gap-3 p-4">
+        <div className="rounded-md border border-high/30 bg-high/5 px-4 py-2.5">
+          <div className="microlabel text-high">New issues</div>
+          <div className="mt-0.5 font-mono text-2xl font-semibold text-high">+{s.newCount}</div>
+          {s.newBySeverity && (
+            <div className="mt-1 text-[11px] text-ink-400">
+              {(["critical", "high", "medium", "low"] as const)
+                .filter((k) => s.newBySeverity?.[k])
+                .map((k) => `${s.newBySeverity?.[k]} ${k}`)
+                .join(" · ") || "—"}
+            </div>
+          )}
+        </div>
+        <div className="rounded-md border border-low/30 bg-low/5 px-4 py-2.5">
+          <div className="microlabel text-low">Resolved</div>
+          <div className="mt-0.5 font-mono text-2xl font-semibold text-low">−{s.resolvedCount}</div>
+          <div className="mt-1 text-[11px] text-ink-400">since previous run</div>
+        </div>
+        {resolved.length > 0 && (
+          <div className="min-w-[240px] flex-1 rounded-md border border-line px-4 py-2.5">
+            <div className="microlabel mb-1">Fixed since last audit</div>
+            <ul className="space-y-0.5 text-[12px] text-ink-700">
+              {resolved.slice(0, 6).map((r, i) => (
+                <li key={i} className="truncate">✓ {r}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </Panel>
   );
 }
 

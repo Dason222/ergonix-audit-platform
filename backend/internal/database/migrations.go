@@ -67,6 +67,9 @@ func (d *DB) migrate() error {
 	if err := d.addColumn("issues", "check_id", "TEXT NOT NULL DEFAULT ''"); err != nil {
 		return err
 	}
+	if err := d.addColumn("audits", "trigger", "TEXT NOT NULL DEFAULT 'manual'"); err != nil {
+		return err
+	}
 	return nil
 }
 

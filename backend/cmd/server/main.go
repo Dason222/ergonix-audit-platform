@@ -19,6 +19,8 @@ import (
 	"github.com/ergonix/auditor/backend/internal/config"
 	"github.com/ergonix/auditor/backend/internal/crawler"
 	"github.com/ergonix/auditor/backend/internal/database"
+	"github.com/ergonix/auditor/backend/internal/models"
+	"github.com/ergonix/auditor/backend/internal/scheduler"
 )
 
 func main() {
@@ -86,6 +88,29 @@ func main() {
 	orch := audit.New(store, crawl, engine, analyzer,
 		audit.Config{SiteConcurrency: cfg.SiteConcurrency}, log)
 
+	// Automatic recurring audits.
+	schedWebsites := cfg.ScheduleWebsites
+	if len(schedWebsites) == 0 {
+		schedWebsites = cfg.Websites
+	}
+	schedCtx, schedCancel := context.WithCancel(context.Background())
+	defer schedCancel()
+	sched := scheduler.New(store, orch, scheduler.Config{
+		Enabled:  cfg.ScheduleEnabled,
+		Interval: cfg.ScheduleInterval,
+		AtStart:  cfg.ScheduleAtStart,
+		Websites: schedWebsites,
+		Params: models.AuditParams{
+			MaxPages:          cfg.DefaultParams.MaxPages,
+			MaxDepth:          cfg.DefaultParams.MaxDepth,
+			Concurrency:       cfg.DefaultParams.Concurrency,
+			RequestTimeoutSec: cfg.DefaultParams.RequestTimeoutSec,
+			RetryCount:        cfg.DefaultParams.RetryCount,
+			UseAI:             cfg.AIEnabled(),
+		},
+	}, log)
+	sched.Start(schedCtx)
+
 	server := api.NewServer(store, orch, cfg, log)
 	httpSrv := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -106,6 +131,7 @@ func main() {
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
 	log.Info("shutting down…")
+	schedCancel() // stop scheduling new audits
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

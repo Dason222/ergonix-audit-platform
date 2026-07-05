@@ -65,6 +65,12 @@ export default function SettingsPage() {
           <dl className="grid grid-cols-2 gap-x-6 gap-y-2 font-mono text-[12px]">
             <dt className="text-ink-400">AI analysis</dt>
             <dd>{meta?.aiEnabled ? `enabled (${meta.aiModel})` : "disabled — no API key"}</dd>
+            <dt className="text-ink-400">Automatic audits</dt>
+            <dd>
+              {meta?.schedule.enabled
+                ? `enabled — every ${meta.schedule.intervalHours}h`
+                : "disabled — set SCHEDULE_ENABLED=true"}
+            </dd>
             <dt className="text-ink-400">Browser checks</dt>
             <dd>{meta?.browserEnabled ? "enabled (Playwright)" : "disabled (HTTP-only)"}</dd>
             <dt className="text-ink-400">Registered websites</dt>

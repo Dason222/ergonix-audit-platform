@@ -47,6 +47,30 @@ export function SourceBadge({ source }: { source: Source }) {
   );
 }
 
+export function TriggerBadge({ trigger }: { trigger?: string }) {
+  if (trigger !== "scheduled") return null;
+  return (
+    <span
+      title="Started automatically by the scheduler"
+      className="inline-flex items-center gap-1 rounded border border-signal-600/30 bg-signal-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-signal-600"
+    >
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <path d="M12 6v6l4 2M12 2a10 10 0 100 20 10 10 0 000-20z" />
+      </svg>
+      auto
+    </span>
+  );
+}
+
+// NewBadge marks a finding that appeared since the previous audit.
+export function NewBadge() {
+  return (
+    <span className="inline-flex items-center rounded bg-high/15 px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-high">
+      new
+    </span>
+  );
+}
+
 export function ConfidenceMeter({ value }: { value: number }) {
   const pct = Math.round(value * 100);
   return (

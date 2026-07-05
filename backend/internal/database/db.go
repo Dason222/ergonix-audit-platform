@@ -21,6 +21,7 @@ type Store interface {
 	UpdateAudit(a *models.Audit) error
 	GetAudit(id int64) (*models.Audit, error)
 	ListAudits(limit, offset int) ([]*models.Audit, int, error)
+	PreviousCompletedAudit(beforeID int64, websiteKey string) (*models.Audit, error)
 	DeleteAudit(id int64) error
 
 	SavePages(pages []*models.Page) error
