@@ -21,28 +21,33 @@ var whitespaceRe = regexp.MustCompile(`[ \t\r\n\x{00A0}]+`)
 // ExtractPage fills p with everything parseable from the HTML document.
 // pageURL must be the final (post-redirect) URL for correct link resolution.
 func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
-	p.Title = strings.TrimSpace(doc.Find("head title").First().Text())
-	p.MetaDescription, _ = doc.Find(`head meta[name="description"]`).First().Attr("content")
+	p.Title = strings.TrimSpace(doc.Find("title").First().Text())
+	// NOTE: metadata selectors are deliberately NOT scoped to <head>. A
+	// malformed element in the head (seen live: a favicon href containing a
+	// Liquid error message) makes HTML parsers close <head> early and move
+	// the remaining metadata into <body>. Browsers and search engines still
+	// honor those tags, so the extractor must too.
+	p.MetaDescription, _ = doc.Find(`meta[name="description"]`).First().Attr("content")
 	p.MetaDescription = strings.TrimSpace(p.MetaDescription)
-	p.Canonical, _ = doc.Find(`head link[rel="canonical"]`).First().Attr("href")
+	p.Canonical, _ = doc.Find(`link[rel="canonical"]`).First().Attr("href")
 	p.Canonical = strings.TrimSpace(p.Canonical)
 	p.Language, _ = doc.Find("html").First().Attr("lang")
 	p.Language = strings.ToLower(strings.TrimSpace(p.Language))
-	p.MetaRobots, _ = doc.Find(`head meta[name="robots"]`).First().Attr("content")
+	p.MetaRobots, _ = doc.Find(`meta[name="robots"]`).First().Attr("content")
 	p.MetaRobots = strings.ToLower(strings.TrimSpace(p.MetaRobots))
-	doc.Find(`head link[rel="alternate"][hreflang]`).Each(func(_ int, s *goquery.Selection) {
+	doc.Find(`link[rel="alternate"][hreflang]`).Each(func(_ int, s *goquery.Selection) {
 		if hl, _ := s.Attr("hreflang"); hl != "" {
 			p.Hreflangs = append(p.Hreflangs, strings.ToLower(hl))
 		}
 	})
-	doc.Find(`head meta[property]`).Each(func(_ int, s *goquery.Selection) {
+	doc.Find(`meta[property]`).Each(func(_ int, s *goquery.Selection) {
 		if prop, _ := s.Attr("property"); strings.HasPrefix(prop, "og:") {
 			p.OGProperties = append(p.OGProperties, strings.ToLower(prop))
 		}
 	})
 	p.OGProperties = uniqueStrings(p.OGProperties)
 
-	doc.Find(`head link[rel]`).Each(func(_ int, s *goquery.Selection) {
+	doc.Find(`link[rel]`).Each(func(_ int, s *goquery.Selection) {
 		rel, _ := s.Attr("rel")
 		rel = strings.ToLower(rel)
 		if !strings.Contains(rel, "icon") {
@@ -56,9 +61,9 @@ func ExtractPage(p *models.Page, doc *goquery.Document, pageURL *url.URL) {
 		}
 	})
 	p.Favicons = uniqueStrings(p.Favicons)
-	p.HasViewport = doc.Find(`head meta[name="viewport"]`).Length() > 0
-	p.HasCharset = doc.Find(`head meta[charset]`).Length() > 0 ||
-		doc.Find(`head meta[http-equiv="Content-Type"]`).Length() > 0
+	p.HasViewport = doc.Find(`meta[name="viewport"]`).Length() > 0
+	p.HasCharset = doc.Find(`meta[charset]`).Length() > 0 ||
+		doc.Find(`meta[http-equiv="Content-Type"]`).Length() > 0
 
 	doc.Find("h1").Each(func(_ int, s *goquery.Selection) {
 		p.H1s = append(p.H1s, collapseSpace(s.Text()))

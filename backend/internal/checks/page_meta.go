@@ -155,7 +155,9 @@ func zeroPriceLegit(text, price string) bool {
 			continue
 		}
 		found = true
-		start := idx - 60
+		// 120 chars of context: gift-bundle lists put the "gifts included"
+		// heading well before the second/third zero-priced item.
+		start := idx - 120
 		if start < 0 {
 			start = 0
 		}

@@ -507,6 +507,14 @@ func TestZeroPriceCheck(t *testing.T) {
 		t.Errorf("free gift price flagged: %+v", got)
 	}
 
+	// Second gift item: the gift heading sits ~80 chars back (live .lt case).
+	p = goodPage()
+	p.Prices = []string{"€0,00"}
+	p.VisibleText = "Dovanos, kurios jau komplekte MagMount laidų laiklis €0,00 €29,00 4 premium ratukai €0,00 €29,00 Pastatoma"
+	if got := runPage(t, &ZeroPriceCheck{}, p); len(got) != 0 {
+		t.Errorf("second gift item flagged: %+v", got)
+	}
+
 	// Same amount in product context stays flagged.
 	p = goodPage()
 	p.Prices = []string{"€0,00"}
