@@ -112,7 +112,7 @@ func Load() *Config {
 
 		AIAPIKey:       env("OPENAI_API_KEY", ""),
 		AIBaseURL:      strings.TrimRight(env("OPENAI_BASE_URL", "https://api.openai.com/v1"), "/"),
-		AIModel:        env("OPENAI_MODEL", "gpt-4o-mini"),
+		AIModel:        env("OPENAI_MODEL", "gpt-5.5-mini"),
 		AIMaxPages:     envInt("AI_MAX_PAGES_PER_SITE", 8),
 		AITimeout:      time.Duration(envInt("AI_TIMEOUT_SEC", 90)) * time.Second,
 		AIMaxTextChars: envInt("AI_MAX_TEXT_CHARS", 4000),
