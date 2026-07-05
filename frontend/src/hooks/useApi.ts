@@ -94,7 +94,10 @@ export function useSettings() {
 export function useSaveSettings() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (settings: Record<string, string>) => api.saveSettings(settings),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["settings"] }),
+    mutationFn: (update: import("../types/api").SettingsUpdate) => api.saveSettings(update),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["settings"] });
+      qc.invalidateQueries({ queryKey: ["websites"] });
+    },
   });
 }

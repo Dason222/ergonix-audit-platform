@@ -6,11 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ergonix/auditor/backend/internal/models"
+	"github.com/ergonix/auditor/backend/internal/settings"
 )
 
 // listWebsites returns the configured website registry plus the default
-// audit parameters so the UI can prefill the form.
+// audit parameters so the UI can prefill the form. AI/schedule state reflects
+// the live (settings-overridden) configuration.
 func (s *Server) listWebsites(c *gin.Context) {
+	eff := s.settings.Effective()
 	c.JSON(http.StatusOK, gin.H{
 		"websites": s.cfg.Websites,
 		"defaults": gin.H{
@@ -19,15 +22,15 @@ func (s *Server) listWebsites(c *gin.Context) {
 			"concurrency":       s.cfg.DefaultParams.Concurrency,
 			"requestTimeoutSec": s.cfg.DefaultParams.RequestTimeoutSec,
 			"retryCount":        s.cfg.DefaultParams.RetryCount,
-			"useAI":             s.cfg.AIEnabled(),
+			"useAI":             eff.AIEnabled(),
 		},
-		"aiEnabled":      s.cfg.AIEnabled(),
-		"aiModel":        s.cfg.AIModel,
+		"aiEnabled":      eff.AIEnabled(),
+		"aiModel":        eff.AIModel,
 		"browserEnabled": s.cfg.BrowserEnabled,
 		"categories":     models.Categories,
 		"schedule": gin.H{
-			"enabled":      s.cfg.ScheduleEnabled,
-			"intervalHours": int(s.cfg.ScheduleInterval.Hours()),
+			"enabled":       eff.ScheduleEnabled,
+			"intervalHours": int(eff.ScheduleInterval.Hours()),
 		},
 	})
 }
@@ -42,28 +45,43 @@ func (s *Server) dashboard(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
-func (s *Server) getSettings(c *gin.Context) {
-	settings, err := s.store.GetSettings()
-	if err != nil {
-		s.log.Error("get settings", "err", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load settings"})
-		return
+// settingsResponse is the structured, secret-safe view of runtime settings.
+func (s *Server) settingsResponse() gin.H {
+	eff := s.settings.Effective()
+	sites := eff.ScheduleWebsites
+	if len(sites) == 0 {
+		sites = s.cfg.Websites
 	}
-	c.JSON(http.StatusOK, gin.H{"settings": settings})
+	return gin.H{
+		"ai": gin.H{
+			"enabled":    eff.AIEnabled(),
+			"keySet":     eff.AIKey != "",
+			"keyPreview": settings.MaskKey(eff.AIKey),
+			"baseUrl":    eff.AIBaseURL,
+			"model":      eff.AIModel,
+		},
+		"schedule": gin.H{
+			"enabled":       eff.ScheduleEnabled,
+			"intervalHours": int(eff.ScheduleInterval.Hours()),
+			"websites":      sites,
+		},
+		"availableWebsites": s.cfg.Websites,
+	}
+}
+
+func (s *Server) getSettings(c *gin.Context) {
+	c.JSON(http.StatusOK, s.settingsResponse())
 }
 
 func (s *Server) putSettings(c *gin.Context) {
-	var body struct {
-		Settings map[string]string `json:"settings"`
-	}
-	if err := c.ShouldBindJSON(&body); err != nil || body.Settings == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "expected {\"settings\": {…}}"})
+	var u settings.Update
+	if err := c.ShouldBindJSON(&u); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid settings body: " + err.Error()})
 		return
 	}
-	if err := s.store.SaveSettings(body.Settings); err != nil {
-		s.log.Error("save settings", "err", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save settings"})
+	if err := s.settings.Save(u); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"settings": body.Settings})
+	c.JSON(http.StatusOK, s.settingsResponse())
 }

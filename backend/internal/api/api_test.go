@@ -18,6 +18,8 @@ import (
 	"github.com/ergonix/auditor/backend/internal/crawler"
 	"github.com/ergonix/auditor/backend/internal/database"
 	"github.com/ergonix/auditor/backend/internal/models"
+	"github.com/ergonix/auditor/backend/internal/scheduler"
+	"github.com/ergonix/auditor/backend/internal/settings"
 )
 
 // newTestServer wires a full real stack (SQLite temp DB, crawler, checks,
@@ -37,10 +39,18 @@ func newTestServer(t *testing.T) (*httptest.Server, database.Store) {
 	orch := audit.New(store, crawl, engine, nil, audit.Config{SiteConcurrency: 2}, log)
 
 	cfg := &config.Config{
-		Websites:    []string{"https://ergonix.lt", "https://ergonix.lv"},
-		CORSOrigins: []string{"http://localhost:5173"},
+		Websites:         []string{"https://ergonix.lt", "https://ergonix.lv"},
+		CORSOrigins:      []string{"http://localhost:5173"},
+		AIModel:          "gpt-4o-mini",
+		AIBaseURL:        "https://api.openai.com/v1",
+		ScheduleInterval: 24 * time.Hour,
 	}
-	srv := NewServer(store, orch, cfg, log)
+	sched := scheduler.New(store, orch, scheduler.Config{}, log)
+	sm, err := settings.New(cfg, store, orch, sched, log)
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := NewServer(store, orch, sm, cfg, log)
 	ts := httptest.NewServer(srv.Router())
 	t.Cleanup(ts.Close)
 	return ts, store
@@ -241,9 +251,9 @@ func TestMetaEndpoints(t *testing.T) {
 	}
 	resp.Body.Close()
 
-	// Settings round trip.
+	// Settings round trip: enable schedule + set AI key, then read back.
 	req, _ := http.NewRequest(http.MethodPut, ts.URL+"/api/settings",
-		strings.NewReader(`{"settings":{"defaultMaxPages":"30"}}`))
+		strings.NewReader(`{"scheduleEnabled":true,"scheduleIntervalHours":12,"aiApiKey":"sk-test-1234567890","aiModel":"gpt-4o"}`))
 	req.Header.Set("Content-Type", "application/json")
 	pr, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -255,10 +265,35 @@ func TestMetaEndpoints(t *testing.T) {
 	}
 	r, _ = http.Get(ts.URL + "/api/settings")
 	got := decode[struct {
-		Settings map[string]string `json:"settings"`
+		AI struct {
+			Enabled    bool   `json:"enabled"`
+			KeySet     bool   `json:"keySet"`
+			KeyPreview string `json:"keyPreview"`
+			Model      string `json:"model"`
+		} `json:"ai"`
+		Schedule struct {
+			Enabled       bool `json:"enabled"`
+			IntervalHours int  `json:"intervalHours"`
+		} `json:"schedule"`
 	}](t, r)
-	if got.Settings["defaultMaxPages"] != "30" {
-		t.Errorf("settings: %+v", got.Settings)
+	if !got.Schedule.Enabled || got.Schedule.IntervalHours != 12 {
+		t.Errorf("schedule not persisted: %+v", got.Schedule)
+	}
+	if !got.AI.Enabled || !got.AI.KeySet || got.AI.Model != "gpt-4o" {
+		t.Errorf("ai not persisted: %+v", got.AI)
+	}
+	if strings.Contains(got.AI.KeyPreview, "567890") { // full key must not leak
+		t.Errorf("AI key leaked in preview: %q", got.AI.KeyPreview)
+	}
+
+	// Interval out of range is rejected.
+	req2, _ := http.NewRequest(http.MethodPut, ts.URL+"/api/settings",
+		strings.NewReader(`{"scheduleIntervalHours":9999}`))
+	req2.Header.Set("Content-Type", "application/json")
+	pr2, _ := http.DefaultClient.Do(req2)
+	pr2.Body.Close()
+	if pr2.StatusCode != http.StatusBadRequest {
+		t.Errorf("out-of-range interval accepted: %d", pr2.StatusCode)
 	}
 
 	// Health.

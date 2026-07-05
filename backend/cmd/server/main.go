@@ -21,6 +21,7 @@ import (
 	"github.com/ergonix/auditor/backend/internal/database"
 	"github.com/ergonix/auditor/backend/internal/models"
 	"github.com/ergonix/auditor/backend/internal/scheduler"
+	"github.com/ergonix/auditor/backend/internal/settings"
 )
 
 func main() {
@@ -88,7 +89,8 @@ func main() {
 	orch := audit.New(store, crawl, engine, analyzer,
 		audit.Config{SiteConcurrency: cfg.SiteConcurrency}, log)
 
-	// Automatic recurring audits.
+	// Automatic recurring audits. The scheduler starts with the env config;
+	// the settings manager immediately re-applies persisted overrides.
 	schedWebsites := cfg.ScheduleWebsites
 	if len(schedWebsites) == 0 {
 		schedWebsites = cfg.Websites
@@ -111,7 +113,14 @@ func main() {
 	}, log)
 	sched.Start(schedCtx)
 
-	server := api.NewServer(store, orch, cfg, log)
+	// Settings manager: DB overrides for AI + schedule, applied live.
+	settingsMgr, err := settings.New(cfg, store, orch, sched, log)
+	if err != nil {
+		log.Error("loading settings", "err", err)
+		os.Exit(1)
+	}
+
+	server := api.NewServer(store, orch, settingsMgr, cfg, log)
 	httpSrv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           server.Router(),

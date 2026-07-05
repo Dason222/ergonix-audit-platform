@@ -27,12 +27,14 @@ type Config struct {
 // Orchestrator runs audits asynchronously and tracks the running set for
 // cancellation.
 type Orchestrator struct {
-	store    database.Store
-	crawler  *crawler.Crawler
-	engine   *checks.Engine
-	analyzer *ai.Analyzer // nil when AI is not configured
-	cfg      Config
-	log      *slog.Logger
+	store   database.Store
+	crawler *crawler.Crawler
+	engine  *checks.Engine
+	cfg     Config
+	log     *slog.Logger
+
+	anMu     sync.RWMutex
+	analyzer *ai.Analyzer // nil when AI is not configured; swappable at runtime
 
 	mu      sync.Mutex
 	running map[int64]context.CancelFunc
@@ -49,6 +51,21 @@ func New(store database.Store, c *crawler.Crawler, e *checks.Engine,
 		store: store, crawler: c, engine: e, analyzer: analyzer,
 		cfg: cfg, log: log, running: map[int64]context.CancelFunc{},
 	}
+}
+
+// SetAnalyzer swaps the AI analyzer at runtime (nil disables AI). Safe to
+// call while audits are running; in-flight sites keep their current analyzer.
+func (o *Orchestrator) SetAnalyzer(a *ai.Analyzer) {
+	o.anMu.Lock()
+	o.analyzer = a
+	o.anMu.Unlock()
+}
+
+// analyzerRef returns the current analyzer under a read lock.
+func (o *Orchestrator) analyzerRef() *ai.Analyzer {
+	o.anMu.RLock()
+	defer o.anMu.RUnlock()
+	return o.analyzer
 }
 
 // Start launches the audit pipeline in a goroutine and returns immediately.
@@ -183,7 +200,7 @@ func (o *Orchestrator) run(ctx context.Context, a *models.Audit) {
 	}
 
 	stats.DurationMs = time.Since(started).Milliseconds()
-	if a.Params.UseAI && o.analyzer == nil {
+	if a.Params.UseAI && o.analyzerRef() == nil {
 		stats.AISkipped = true
 		stats.Notes = append(stats.Notes, "AI analysis skipped: no API key configured")
 	}
@@ -240,9 +257,9 @@ func (o *Orchestrator) runSite(ctx context.Context, a *models.Audit, idx int, we
 	o.setSite(a, idx, func(s *models.AuditSite) { s.Status = "checking" })
 	issues = o.engine.Run(ctx, &checks.SiteContext{Website: website, Pages: pages})
 
-	if a.Params.UseAI && o.analyzer != nil && ctx.Err() == nil {
+	if analyzer := o.analyzerRef(); a.Params.UseAI && analyzer != nil && ctx.Err() == nil {
 		o.setSite(a, idx, func(s *models.AuditSite) { s.Status = "ai_analysis" })
-		aiIssues, aiErr := o.analyzer.AnalyzeSite(ctx, website, pages, nil)
+		aiIssues, aiErr := analyzer.AnalyzeSite(ctx, website, pages, nil)
 		issues = append(issues, aiIssues...)
 		if aiErr != nil {
 			o.log.Warn("ai analysis failed for site; continuing", "website", website, "err", aiErr)

@@ -1,10 +1,12 @@
 // Package scheduler runs audits automatically on a recurring interval, so
 // the platform detects problems on its own without anyone clicking "Audit".
+// Its configuration can be changed at runtime via Reconfigure (from Settings).
 package scheduler
 
 import (
 	"context"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/ergonix/auditor/backend/internal/audit"
@@ -16,75 +18,107 @@ import (
 type Config struct {
 	Enabled  bool
 	Interval time.Duration
-	AtStart  bool          // run once shortly after boot
-	Websites []string      // sites to audit (empty handled by caller)
-	Params   models.AuditParams
+	AtStart  bool               // run once shortly after boot
+	Websites []string           // sites to audit (empty = handled by caller)
+	Params   models.AuditParams // crawl params for scheduled runs
 }
 
-// Scheduler periodically enqueues audits via the orchestrator.
+// Scheduler periodically enqueues audits via the orchestrator. The control
+// loop runs for the process lifetime; enabling/disabling is a config change,
+// not a start/stop, so settings can toggle it live.
 type Scheduler struct {
 	store database.Store
 	orch  *audit.Orchestrator
-	cfg   Config
 	log   *slog.Logger
+
+	mu       sync.Mutex
+	cfg      Config
+	reconfig chan struct{}
+	started  bool
 }
 
-// New builds a Scheduler.
+// New builds a Scheduler with an initial config.
 func New(store database.Store, orch *audit.Orchestrator, cfg Config, log *slog.Logger) *Scheduler {
-	return &Scheduler{store: store, orch: orch, cfg: cfg, log: log}
+	return &Scheduler{store: store, orch: orch, cfg: cfg, log: log, reconfig: make(chan struct{}, 1)}
 }
 
-// Start launches the scheduling loop in a goroutine. It returns immediately;
-// the loop stops when ctx is cancelled.
-func (s *Scheduler) Start(ctx context.Context) {
-	if !s.cfg.Enabled || len(s.cfg.Websites) == 0 || s.cfg.Interval <= 0 {
-		s.log.Info("automatic auditing disabled")
-		return
+// Reconfigure replaces the schedule configuration and wakes the loop so the
+// change takes effect immediately.
+func (s *Scheduler) Reconfigure(cfg Config) {
+	s.mu.Lock()
+	s.cfg = cfg
+	s.mu.Unlock()
+	s.log.Info("scheduler reconfigured",
+		"enabled", cfg.Enabled, "interval", cfg.Interval.String(), "websites", len(cfg.Websites))
+	select {
+	case s.reconfig <- struct{}{}:
+	default:
 	}
-	s.log.Info("automatic auditing enabled",
-		"interval", s.cfg.Interval.String(),
-		"websites", len(s.cfg.Websites),
-		"atStart", s.cfg.AtStart)
+}
 
+func (s *Scheduler) snapshot() Config {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.cfg
+}
+
+// Start launches the always-on control loop.
+func (s *Scheduler) Start(ctx context.Context) {
 	go s.loop(ctx)
 }
 
 func (s *Scheduler) loop(ctx context.Context) {
-	// Decide whether to run immediately: either AtStart is set, or the most
-	// recent scheduled audit is older than the interval (survives restarts).
-	if s.cfg.AtStart || s.overdue() {
-		// small delay so the server is fully up first
-		select {
-		case <-time.After(5 * time.Second):
-			s.trigger(ctx)
-		case <-ctx.Done():
-			return
-		}
+	timer := time.NewTimer(time.Hour)
+	if !timer.Stop() {
+		<-timer.C
 	}
+	s.arm(timer, true)
 
-	ticker := time.NewTicker(s.cfg.Interval)
-	defer ticker.Stop()
 	for {
 		select {
-		case <-ticker.C:
-			s.trigger(ctx)
 		case <-ctx.Done():
+			timer.Stop()
 			s.log.Info("scheduler stopped")
 			return
+		case <-s.reconfig:
+			s.arm(timer, false)
+		case <-timer.C:
+			s.trigger(ctx)
+			s.arm(timer, false)
 		}
 	}
 }
 
+// arm (re)schedules the timer based on the current config. A disabled or
+// site-less config leaves the timer stopped (loop only wakes on reconfig).
+func (s *Scheduler) arm(timer *time.Timer, initial bool) {
+	if !timer.Stop() {
+		select {
+		case <-timer.C:
+		default:
+		}
+	}
+	cfg := s.snapshot()
+	if !cfg.Enabled || cfg.Interval <= 0 || len(cfg.Websites) == 0 {
+		return
+	}
+	delay := cfg.Interval
+	if (initial && cfg.AtStart) || s.overdue(cfg.Interval) {
+		delay = 5 * time.Second // due now — run shortly after (re)config
+	}
+	timer.Reset(delay)
+}
+
 // overdue reports whether no scheduled audit has completed within the last
-// interval, so a restart doesn't skip a due run.
-func (s *Scheduler) overdue() bool {
+// interval, so a restart or re-enable doesn't skip a due run.
+func (s *Scheduler) overdue(interval time.Duration) bool {
 	audits, _, err := s.store.ListAudits(50, 0)
 	if err != nil {
 		return false
 	}
 	for _, a := range audits {
 		if a.Trigger == "scheduled" && a.FinishedAt != nil {
-			return time.Since(*a.FinishedAt) >= s.cfg.Interval
+			return time.Since(*a.FinishedAt) >= interval
 		}
 	}
 	return true // never run a scheduled audit before
@@ -92,11 +126,12 @@ func (s *Scheduler) overdue() bool {
 
 // trigger creates and starts one scheduled audit.
 func (s *Scheduler) trigger(ctx context.Context) {
-	if ctx.Err() != nil {
+	cfg := s.snapshot()
+	if ctx.Err() != nil || !cfg.Enabled || len(cfg.Websites) == 0 {
 		return
 	}
-	params := s.cfg.Params
-	params.Websites = append([]string(nil), s.cfg.Websites...)
+	params := cfg.Params
+	params.Websites = append([]string(nil), cfg.Websites...)
 	params.Normalize()
 
 	a := &models.Audit{

@@ -154,3 +154,29 @@ export interface IssueFilters {
   source?: string;
   search?: string;
 }
+
+export interface RuntimeSettings {
+  ai: {
+    enabled: boolean;
+    keySet: boolean;
+    keyPreview: string;
+    baseUrl: string;
+    model: string;
+  };
+  schedule: {
+    enabled: boolean;
+    intervalHours: number;
+    websites: string[];
+  };
+  availableWebsites: string[];
+}
+
+export interface SettingsUpdate {
+  aiApiKey?: string;
+  clearAiKey?: boolean;
+  aiBaseUrl?: string;
+  aiModel?: string;
+  scheduleEnabled?: boolean;
+  scheduleIntervalHours?: number;
+  scheduleWebsites?: string[];
+}

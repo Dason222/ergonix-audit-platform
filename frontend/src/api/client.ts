@@ -5,6 +5,8 @@ import type {
   Issue,
   IssueFilters,
   Page,
+  RuntimeSettings,
+  SettingsUpdate,
   WebsitesResponse,
 } from "../types/api";
 
@@ -78,12 +80,12 @@ export const api = {
   pages: (auditId: number) =>
     request<{ pages: Page[] }>(`/api/audits/${auditId}/pages`),
 
-  settings: () => request<{ settings: Record<string, string> }>("/api/settings"),
+  settings: () => request<RuntimeSettings>("/api/settings"),
 
-  saveSettings: (settings: Record<string, string>) =>
-    request<{ settings: Record<string, string> }>("/api/settings", {
+  saveSettings: (update: SettingsUpdate) =>
+    request<RuntimeSettings>("/api/settings", {
       method: "PUT",
-      body: JSON.stringify({ settings }),
+      body: JSON.stringify(update),
     }),
 
   exportUrl: (auditId: number, format: "json" | "csv" | "html" | "pdf") =>

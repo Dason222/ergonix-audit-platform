@@ -63,6 +63,11 @@ SCHEDULE_INTERVAL_HOURS=24     # audit every 24h
 SCHEDULE_AT_START=true        # also run once ~5s after boot
 ```
 
+These can also be set **from the Settings page in the UI** (no restart) — the
+scheduler is reconfigured live, and the AI API key / model / base URL are
+editable there too (the key is stored server-side and never shown again).
+DB-stored settings override the `.env` defaults.
+
 Scheduled audits are tagged **auto** in the history, survive restarts (a due
 run isn't skipped), and each run is compared against the previous audit of the
 same sites. The audit report then shows a **"Change since audit #N"** panel —

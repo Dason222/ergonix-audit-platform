@@ -9,20 +9,22 @@ import (
 	"github.com/ergonix/auditor/backend/internal/audit"
 	"github.com/ergonix/auditor/backend/internal/config"
 	"github.com/ergonix/auditor/backend/internal/database"
+	"github.com/ergonix/auditor/backend/internal/settings"
 )
 
 // Server bundles the API dependencies.
 type Server struct {
 	store        database.Store
 	orchestrator *audit.Orchestrator
+	settings     *settings.Manager
 	cfg          *config.Config
 	log          *slog.Logger
 }
 
 // NewServer builds the API server.
 func NewServer(store database.Store, orch *audit.Orchestrator,
-	cfg *config.Config, log *slog.Logger) *Server {
-	return &Server{store: store, orchestrator: orch, cfg: cfg, log: log}
+	sm *settings.Manager, cfg *config.Config, log *slog.Logger) *Server {
+	return &Server{store: store, orchestrator: orch, settings: sm, cfg: cfg, log: log}
 }
 
 // Router constructs the Gin engine with all routes registered.
