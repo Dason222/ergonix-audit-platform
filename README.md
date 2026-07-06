@@ -52,6 +52,68 @@ OpenAI-compatible LLM client · SQLite (pure-Go, no CGO) — clean architecture:
 **Frontend** React 18 · TypeScript · Vite · Tailwind v4 · TanStack Query ·
 TanStack Table · Recharts.
 
+## Getting started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Dason222/ergonix-audit-platform.git
+cd ergonix-audit-platform
+```
+
+Then run it one of two ways. No configuration is required to start — it works
+with sensible defaults, and AI analysis simply stays off until you add a key
+(in the UI under **Settings → AI**, or via `.env`).
+
+### Option A — Docker (recommended; nothing else to install)
+
+Requires only Docker Desktop / Docker Engine + Compose.
+
+```bash
+cp .env.example .env          # optional: add OPENAI_API_KEY for AI checks
+docker compose up --build
+```
+
+Open **http://localhost:3000**. nginx serves the SPA and proxies `/api` to the
+backend; audit data persists in the `audit-data` volume. Stop with `Ctrl+C`
+(or `docker compose down`).
+
+### Option B — Local (two terminals)
+
+Requires **Go ≥ 1.25** and **Node ≥ 20** (npm). Open two terminals:
+
+```bash
+# Terminal 1 — backend API on :8080
+cd backend
+go run ./cmd/server
+
+# Terminal 2 — frontend on :5173 (dev server proxies /api → :8080)
+cd frontend
+npm install        # first time only
+npm run dev
+```
+
+Open **http://localhost:5173**, pick one or more websites, and press
+**Audit Selected** (or **Audit All Websites**) to watch the pipeline run.
+
+**Verify it's up** (optional):
+
+```bash
+curl http://localhost:8080/healthz     # → {"status":"ok"}
+```
+
+### Optional extras
+
+```bash
+# Enable AI content analysis. Easiest: Settings → AI in the UI. Or via env
+# (backend reads backend/.env when run locally, repo-root .env under Docker):
+echo OPENAI_API_KEY=sk-... >> backend/.env     # any OpenAI-compatible endpoint
+
+# Enable the real-browser pass (console errors, failed requests, load timing):
+npx playwright install chromium
+echo BROWSER_ENABLED=true >> backend/.env
+```
+
 ## Automatic scheduled audits (built in)
 
 The platform can audit the sites **on its own**, with no manual trigger. Set
@@ -122,45 +184,6 @@ cron / Windows Task Scheduler / CI:
 ```
 # cron: full audit of all storefronts every night at 03:00
 0 3 * * *  cd /opt/ergonix-audit/backend && ./audit -sites all -quiet -out /var/reports
-```
-
-## Quick start (Docker)
-
-```bash
-cp .env.example .env          # optionally set OPENAI_API_KEY for AI checks
-docker compose up --build
-```
-
-Open **http://localhost:3000** — nginx serves the SPA and proxies `/api` to
-the backend; audit data persists in the `audit-data` volume.
-
-## Quick start (local dev)
-
-Prerequisites: Go ≥ 1.24, Node ≥ 20.
-
-```bash
-# Terminal 1 — backend on :8080
-cd backend
-go run ./cmd/server
-
-# Terminal 2 — frontend on :5173 (proxies /api to :8080)
-cd frontend
-npm install
-npm run dev
-```
-
-Open **http://localhost:5173**, pick websites, press **Audit Selected** (or
-**Audit All Websites**) and watch the pipeline run.
-
-Optional extras:
-
-```bash
-# enable AI analysis
-echo OPENAI_API_KEY=sk-... >> .env       # or any OpenAI-compatible endpoint
-
-# enable the real-browser pass (console errors, failed requests, load timing)
-npx playwright install chromium
-echo BROWSER_ENABLED=true >> .env
 ```
 
 ## Tests
