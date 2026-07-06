@@ -31,3 +31,7 @@ coverage.out
 
 # CLI audit output
 reports/
+
+# Office temp/lock files
+~$*
+*.tmp
